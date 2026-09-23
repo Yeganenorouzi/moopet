@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# اگر push جدیدی آمد، اجرای قبلی همان برنچ لغو شود
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # نسخه از .node-version خوانده می‌شود تا با محیط توسعه یکی بماند
+          node-version-file: '.node-version'
+          cache: npm
+
+      - name: نصب وابستگی‌ها
+        run: npm ci
+
+      - name: بیلد وب
+        run: npm run build --workspace @moopet/web
+
+      - name: بیلد API
+        run: npm run build --workspace @moopet/api
+
+      # ── بررسی‌های سئویی ──
+      # این‌ها قوانینی‌اند که دستی کشفشان سخت است و شکستنشان آسان.
+      - name: بررسی سازگاری sitemap با noindex
+        run: |
+          cd apps/web/dist/client
+
+          indexable=$(grep -rL 'content="noindex' --include=index.html . | wc -l)
+          in_sitemap=$(cat sitemap/*.xml | grep -o '<loc>' | wc -l)
+
+          echo "صفحات ایندکس‌شونده: $indexable"
+          echo "URL در sitemap    : $in_sitemap"
+
+          if [ "$indexable" -ne "$in_sitemap" ]; then
+            echo "::error::sitemap با صفحات ایندکس‌شونده هم‌خوان نیست."
+            echo "فرستادن صفحه‌ی noindex در sitemap به گوگل سیگنال متناقض می‌دهد."
+            exit 1
+          fi
+
+      - name: بررسی یکتا بودن canonical و title
+        run: |
+          cd apps/web/dist/client
+
+          pages=$(find . -name index.html | wc -l)
+          canon=$(grep -rho 'rel="canonical"' --include=index.html . | wc -l)
+          titles=$(grep -rho '<title>[^<]*</title>' --include=index.html . | sort -u | wc -l)
+
+          echo "صفحات: $pages | canonical: $canon | عنوان یکتا: $titles"
+
+          if [ "$pages" -ne "$canon" ]; then
+            echo "::error::همه‌ی صفحات canonical ندارند."
+            exit 1
+          fi
+
+          if [ "$pages" -ne "$titles" ]; then
+            echo "::error::عنوان تکراری وجود دارد — کانیبالیزیشن در نتایج گوگل."
+            exit 1
+          fi
+
+      - name: بررسی نبود لینک تلفن خالی
+        run: |
+          cd apps/web/dist/client
+          if grep -rq 'tel:null\|tel:undefined' --include=index.html .; then
+            echo "::error::لینک tel: خالی پیدا شد."
+            exit 1
+          fi
+          echo "✓ تمیز"
