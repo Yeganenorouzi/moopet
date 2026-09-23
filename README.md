@@ -1,5 +1,8 @@
 # موپت — دایرکتوری خدمات حیوانات خانگی
 
+> 📍 **ادامه‌ی کار؟** اول [`docs/STATUS.md`](docs/STATUS.md) را بخوانید —
+> وضعیت فعلی، مسدودکننده‌ها و تصمیم‌هایی که نباید برگردانده شوند.
+
 دایرکتوری مراکز خدمات حیوانات خانگی تهران: دامپزشکی، پت شاپ، آرایشگاه،
 پانسیون و ۱۱ دسته‌ی دیگر — به تفکیک محله.
 
@@ -23,29 +26,73 @@ React عمداً استفاده نشده. خروجی صفحات HTML خالص ا
 
 ---
 
-## راه‌اندازی
-
-نیازمند **Node 22** (نسخه در `.node-version` پین شده).
+## شروع روی یک سیستم جدید
 
 ```bash
+git clone https://github.com/Yeganenorouzi/moopet.git
+cd moopet
 npm install
+npm run dev        # → http://localhost:4321
+```
 
+### پیش‌نیاز: Node 22
+
+نسخه در `.node-version` پین شده. اگر Node ندارید یا نسخه‌تان قدیمی است:
+
+**ویندوز**
+```powershell
+winget install Schniz.fnm
+fnm install 22
+```
+سپس این خط را به پروفایل PowerShell اضافه کنید
+(`$PROFILE.CurrentUserAllHosts`) تا با ورود به پوشه خودکار سوییچ شود:
+```powershell
+fnm env --use-on-cd --shell power-shell | Out-String | Invoke-Expression
+```
+
+**macOS / Linux**
+```bash
+curl -fsSL https://fnm.vercel.app/install | bash
+fnm install 22
+```
+
+> ⚠️ اگر روی سیستم Node دیگری (مثلاً همراه لاراگون یا XAMPP) در PATH
+> غالب باشد، `npm run dev` با خطای نسخه شکست می‌خورد. در cmd.exe ویندوز
+> از لانچر استفاده کنید که صریحاً Node 22 را صدا می‌زند:
+> ```cmd
+> dev.cmd        :: وب
+> dev.cmd api    :: API
+> ```
+
+### دستورها
+
+```bash
 npm run dev       # وب  → http://localhost:4321
 npm run dev:api   # API → http://localhost:3000/api
 npm run build     # خروجی پروداکشن
 ```
 
-### روی ویندوز با cmd.exe
+---
 
-اگر Node دیگری (مثلاً لاراگون) در PATH غالب باشد، از لانچر استفاده کنید:
+## آنچه در گیت نیست
 
-```cmd
-dev.cmd        :: وب
-dev.cmd api    :: API
+این‌ها عمداً کامیت نمی‌شوند و روی سیستم جدید باید بازتولید شوند:
+
+| مورد | بازتولید |
+|---|---|
+| `node_modules/` | `npm install` |
+| `apps/web/dist/` | `npm run build` |
+| `scripts/out/` | خروجی اسکریپت‌ها (پایین) |
+
+**فایل اکسل شماره‌های خالی** در `scripts/out/` است و کامیت نمی‌شود.
+روی سیستم جدید دوباره بسازید:
+
+```bash
+node scripts/export-missing-phones.mjs
 ```
 
-در PowerShell و ترمینال VS Code، `fnm` خودکار نسخه را عوض می‌کند و
-`npm run dev` کافی است.
+> ⚠️ اگر فایل اکسل را **نیمه‌کاره پر کرده‌اید**، پیش از تعویض سیستم
+> خودتان آن را کپی کنید — با `git clone` منتقل نمی‌شود.
 
 ---
 
