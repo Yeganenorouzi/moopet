@@ -15,6 +15,10 @@ import { faNum } from '../../../lib/format';
 export const getStaticPaths = (async () => {
   const paths = [];
   for (const c of categories) {
+    // vet-24h قالب اختصاصی خود را دارد (src/pages/vet-24h/[city]/)
+    // چون نیت جست‌وجویش اورژانسی است، نه مرور.
+    if (c.slug === 'vet-24h') continue;
+
     for (const city of cities) {
       paths.push({
         params: { category: c.slug, city: city.slug },

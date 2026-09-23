@@ -1,0 +1,87 @@
+---
+/**
+ * تریاژ اورژانس — محتوایی که این صفحه را از یک لیست ساده متمایز می‌کند.
+ *
+ * دو کارکرد دارد:
+ *  ۱. برای کاربر: کمک به تصمیم «الان برم یا تا صبح صبر کنم»
+ *  ۲. برای سئو: محتوای یکتای تخصصی که رقبا ندارند + FAQPage schema
+ *
+ * ⚠️ این محتوا جایگزین مشاوره‌ی دامپزشک نیست و صفحه همین را می‌گوید.
+ */
+
+export const URGENT = [
+  { t: 'تنگی نفس', d: 'نفس کشیدن با دهان باز در گربه، یا لثه‌ی آبی و خاکستری' },
+  { t: 'تشنج', d: 'تشنج بیش از دو دقیقه یا تشنج‌های پشت‌سرهم' },
+  { t: 'ناتوانی در ادرار', d: 'به‌خصوص در گربه‌ی نر — انسداد مجاری ظرف چند ساعت کشنده است' },
+  { t: 'خوردن مواد سمی', d: 'شکلات، پیاز، انگور، زایلیتول یا داروی انسانی' },
+  { t: 'خون‌ریزی بند نیامدنی', d: 'فشار مستقیم با پارچه‌ی تمیز و حرکت فوری' },
+  { t: 'شکم متورم و سفت', d: 'در سگ‌های بزرگ‌جثه می‌تواند پیچ‌خوردگی معده باشد' },
+  { t: 'تصادف یا سقوط', d: 'حتی اگر ظاهراً سالم است — خون‌ریزی داخلی دیده نمی‌شود' },
+  { t: 'زایمان طولانی', d: 'بیش از یک ساعت زور زدن بدون تولد نوزاد' },
+];
+
+export const CAN_WAIT = [
+  'کم‌اشتهایی یک وعده‌ای بدون علائم دیگر',
+  'خارش خفیف',
+  'یک بار استفراغ در حیوان سرحال',
+  'لنگش خفیف بدون تورم',
+];
+---
+
+<section aria-labelledby="triage" class="mt-14">
+  <h2 id="triage" class="text-xl font-bold text-ink-900">
+    آیا وضعیت اورژانسی است؟
+  </h2>
+  <p class="mt-2 text-sm text-ink-600">
+    اگر هر کدام از این نشانه‌ها را می‌بینید، تا صبح صبر نکنید.
+  </p>
+
+  <div class="mt-6 grid gap-5 lg:grid-cols-3">
+    <!-- فوری -->
+    <div class="rounded-card border-2 border-accent-300 bg-accent-50 p-6 lg:col-span-2">
+      <h3 class="flex items-center gap-2 font-bold text-accent-900">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M12 3 2 20h20L12 3Z"></path>
+          <path d="M12 9v5M12 17.5v.01"></path>
+        </svg>
+        همین حالا مراجعه کنید
+      </h3>
+
+      <ul class="mt-4 grid gap-x-6 gap-y-3.5 sm:grid-cols-2">
+        {
+          URGENT.map((u) => (
+            <li>
+              <p class="text-sm font-bold text-accent-900">{u.t}</p>
+              <p class="mt-0.5 text-xs leading-6 text-accent-800/80">{u.d}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <!-- می‌تواند صبر کند -->
+    <div class="rounded-card border border-ink-200 bg-surface p-6">
+      <h3 class="font-bold text-ink-900">معمولاً تا صبح صبر می‌کند</h3>
+      <ul class="mt-4 space-y-2.5">
+        {
+          CAN_WAIT.map((c) => (
+            <li class="flex gap-2.5 text-sm leading-7 text-ink-600">
+              <span class="mt-2.5 size-1.5 shrink-0 rounded-full bg-ink-300" aria-hidden="true" />
+              {c}
+            </li>
+          ))
+        }
+      </ul>
+
+      <p class="mt-5 border-t border-ink-100 pt-4 text-xs leading-6 text-ink-500">
+        در شک، تماس بگیرید. بیشتر مراکز شبانه‌روزی تلفنی راهنمایی می‌کنند که
+        نیاز به مراجعه هست یا نه.
+      </p>
+    </div>
+  </div>
+
+  <p class="mt-6 rounded-xl border border-ink-200 bg-surface-sunken p-4 text-xs leading-7 text-ink-500">
+    این فهرست راهنمای کلی است و جایگزین تشخیص دامپزشک نیست. در هر وضعیت
+    نگران‌کننده‌ای با نزدیک‌ترین مرکز تماس بگیرید.
+  </p>
+</section>

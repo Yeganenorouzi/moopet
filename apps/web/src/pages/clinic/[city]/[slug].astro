@@ -1,5 +1,6 @@
 ---
 import type { GetStaticPaths } from 'astro';
+import { formatPhone, telHref } from '../../../lib/phone';
 import Base from '../../../layouts/Base.astro';
 import Breadcrumbs from '../../../components/seo/Breadcrumbs.astro';
 import JsonLd from '../../../components/seo/JsonLd.astro';
@@ -184,12 +185,12 @@ const directionsUrl =
                   <dt class="w-24 shrink-0 text-sm text-ink-500">تلفن</dt>
                   <dd class="flex-1">
                     <a
-                      href={`tel:${l.phone.replace(/\s/g, '')}`}
+                      href={telHref(l.phone)}
                       dir="ltr"
                       class="font-bold text-brand-700 hover:underline"
                       style="display:inline-block"
                     >
-                      {l.phone}
+                      {formatPhone(l.phone)}
                     </a>
                   </dd>
                 </div>

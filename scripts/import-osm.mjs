@@ -9,6 +9,31 @@
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 
+/**
+ * نرمال‌سازی شماره — منطق آینه‌ی apps/web/src/lib/phone.ts
+ * اینجا اعمال می‌شود تا داده از ریشه تمیز ذخیره شود، نه فقط در نمایش.
+ */
+function normalizePhone(raw) {
+  if (!raw) return null;
+  let s = String(raw).replace(/[۰-۹]/g, (d) => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
+
+  // OSM گاهی چند شماره را با ; در یک فیلد می‌گذارد — اولی را بردار
+  s = s.split(/[;,/|]/)[0].replace(/\D/g, '');
+
+  if (s.startsWith('0098')) s = s.slice(4);
+  else if (s.startsWith('98') && !s.startsWith('980')) s = s.slice(2);
+
+  if (!s.startsWith('0')) s = '0' + s;
+  return s.length >= 6 ? s : null;
+}
+
+function phoneKind(n) {
+  if (/^09\d{9}$/.test(n)) return 'mobile';
+  if (/^0\d{2}\d{8}$/.test(n)) return 'landline';
+  if (/^021\d{4,7}$/.test(n)) return 'short';
+  return 'unknown';
+}
+
 const MAX_KM = 2.2;
 
 const tax = JSON.parse(readFileSync('apps/web/src/data/taxonomy.json', 'utf8'));
@@ -82,7 +107,7 @@ for (const r of osm.rows) {
     neighborhood: hood?.slug ?? null,
     // آدرس واقعی اگر OSM داشت؛ وگرنه فقط محله — هیچ آدرسی از خود درنمی‌آوریم
     address: addressParts || (hood ? `${hood.fa}، تهران` : 'تهران'),
-    phone: r.phone?.replace(/\s+/g, ' ').trim() ?? null,
+    phone: normalizePhone(r.phone),
     is24h: /24\/7/.test(r.openingHours ?? ''),
     openingHours: r.openingHours ?? null,
     website: r.website ?? null,
@@ -173,6 +198,20 @@ console.log('بر اساس دسته:', byCat);
 console.log('بدون محله (فقط صفحه‌ی شهر):', unassigned);
 console.log('دارای تلفن:', listings.filter((l) => l.phone).length);
 console.log('شبانه‌روزی:', listings.filter((l) => l.is24h).length);
+
+// ── کیفیت شماره‌ها ──
+const kinds = {};
+for (const l of listings.filter((x) => x.phone)) {
+  const k = phoneKind(l.phone);
+  kinds[k] = (kinds[k] ?? 0) + 1;
+}
+console.log('نوع شماره:', kinds);
+
+const odd = listings.filter((l) => l.phone && phoneKind(l.phone) === 'unknown');
+if (odd.length) {
+  console.log('\n⚠️ شماره‌های با فرمت ناشناخته (نیاز به بررسی دستی):');
+  for (const l of odd) console.log(`   ${l.phone.padEnd(14)} ${l.name}`);
+}
 
 const MIN = tax.config.minListingsForPage;
 const eligible = Object.entries(byHood)

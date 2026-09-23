@@ -1,0 +1,254 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../../layouts/Base.astro';
+import Breadcrumbs from '../../../components/seo/Breadcrumbs.astro';
+import JsonLd from '../../../components/seo/JsonLd.astro';
+import EmergencyList from '../../../components/ui/EmergencyList.astro';
+import EmergencyTriage, { URGENT } from '../../../components/ui/EmergencyTriage.astro';
+import Attribution from '../../../components/ui/Attribution.astro';
+import { SITE, absoluteUrl } from '../../../lib/site';
+import { faNum } from '../../../lib/format';
+import { cities, zones, neighborhoods, url } from '../../../lib/taxonomy';
+import { getListings, shouldIndex } from '../../../lib/listings';
+
+/**
+ * صفحه‌ی اختصاصی دامپزشکی شبانه‌روزی.
+ *
+ * چرا قالب جداگانه دارد: نیت جست‌وجوی «دامپزشکی شبانه‌روزی» با
+ * «دامپزشکی» زمین تا آسمان فرق دارد. اولی اورژانسی است — کاربر
+ * ساعت ۲ بامداد با حیوان بیمار پشت خط است. قالب عمومی دسته‌ها
+ * برای مرور ساخته شده، این یکی برای اقدام فوری.
+ *
+ * petlink این را فقط به صورت فیلتر (tbTimes=41) دارد، نه لندینگ‌پیج.
+ */
+export const getStaticPaths = (async () => {
+  return cities.map((city) => ({
+    params: { city: city.slug },
+    props: { city },
+  }));
+}) satisfies GetStaticPaths;
+
+const { city } = Astro.props;
+
+const listings = await getListings({ category: 'vet-24h', city: city.slug });
+const indexable = shouldIndex(listings);
+const count = listings.length;
+const withPhone = listings.filter((l) => l.phone).length;
+
+const title = count
+  ? `دامپزشکی شبانه‌روزی ${city.fa} | ${faNum(count)} مرکز اورژانس ۲۴ ساعته`
+  : `دامپزشکی شبانه‌روزی ${city.fa} | مراکز اورژانس دامپزشکی`;
+
+const description = `لیست ${
+  count ? faNum(count) + ' ' : ''
+}دامپزشکی شبانه‌روزی و اورژانس دامپزشکی در ${city.fa} با شماره تماس مستقیم. راهنمای تشخیص وضعیت اورژانسی حیوان خانگی.`;
+
+/** محله‌هایی که مرکز شبانه‌روزی دارند */
+const hoodsWith = neighborhoods
+  .map((n) => ({ n, c: listings.filter((l) => l.neighborhood === n.slug).length }))
+  .filter((x) => x.c > 0)
+  .sort((a, b) => b.c - a.c);
+
+const zonesWith = zones
+  .map((z) => {
+    const slugs = neighborhoods.filter((n) => n.zone === z.slug).map((n) => n.slug);
+    return { z, c: listings.filter((l) => l.neighborhood && slugs.includes(l.neighborhood)).length };
+  })
+  .filter((x) => x.c > 0);
+
+/**
+ * EmergencyService زیرنوع رسمی schema.org است و دقیقاً همین حالت را
+ * توصیف می‌کند. ترکیبش با VeterinaryCare به گوگل می‌فهماند این صفحه
+ * فهرست اورژانس دامپزشکی است، نه یک دایرکتوری معمولی.
+ */
+const itemList = {
+  '@type': 'ItemList',
+  name: `دامپزشکی شبانه‌روزی ${city.fa}`,
+  numberOfItems: count,
+  itemListElement: listings.map((l, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    item: {
+      '@type': ['VeterinaryCare', 'EmergencyService'],
+      name: l.name,
+      url: absoluteUrl(url.clinic(l.city, l.slug)),
+      ...(l.phone ? { telephone: l.phone } : {}),
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: l.address,
+        addressLocality: city.fa,
+        addressCountry: 'IR',
+      },
+      openingHoursSpecification: {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: [
+          'Monday', 'Tuesday', 'Wednesday', 'Thursday',
+          'Friday', 'Saturday', 'Sunday',
+        ],
+        opens: '00:00',
+        closes: '23:59',
+      },
+    },
+  })),
+};
+
+const faq = {
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'چه زمانی باید فوراً حیوانم را به دامپزشک ببرم؟',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `مراجعه‌ی فوری لازم است اگر: ${URGENT.slice(0, 5)
+          .map((u) => u.t)
+          .join('، ')}. در این موارد تا صبح صبر نکنید.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: `آیا دامپزشکی شبانه‌روزی در ${city.fa} وجود دارد؟`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: count
+          ? `بله. در حال حاضر ${faNum(count)} مرکز دامپزشکی شبانه‌روزی در ${city.fa} در موپت ثبت شده که ${faNum(withPhone)} مورد شماره تماس مستقیم دارند.`
+          : `فهرست مراکز شبانه‌روزی ${city.fa} در حال تکمیل است.`,
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'قبل از رسیدن به دامپزشکی چه کاری انجام دهم؟',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'اول تماس بگیرید تا مرکز آماده‌ی پذیرش باشد. حیوان را در جعبه یا حوله‌ی گرم قرار دهید و حرکتش را محدود کنید. اگر ماده‌ی سمی خورده، بسته‌اش را همراه ببرید. بدون دستور دامپزشک به او دارو یا غذا ندهید.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'هزینه‌ی ویزیت اورژانس شبانه بیشتر است؟',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'معمولاً بله. بیشتر مراکز برای ساعات غیراداری و تعطیلات تعرفه‌ی متفاوتی دارند. هنگام تماس هزینه‌ی ویزیت را بپرسید.',
+      },
+    },
+  ],
+};
+---
+
+<Base title={title} description={description} noindex={!indexable}>
+  <JsonLd data={[itemList, faq]} />
+
+  {/* سربرگ اورژانسی — رنگ accent به جای برند سبز، چون این صفحه
+      حالت فوریت دارد و باید بصری از بقیه‌ی سایت متمایز باشد. */}
+  <section class="border-b-2 border-accent-300 bg-accent-50">
+    <div class="container-page py-10 sm:py-12">
+      <Breadcrumbs
+        items={[
+          { name: 'موپت', href: '/' },
+          { name: 'دامپزشکی شبانه‌روزی', href: url.category('vet-24h') },
+          { name: city.fa, href: url.categoryCity('vet-24h', city.slug) },
+        ]}
+      />
+
+      <p class="mt-6 inline-flex items-center gap-2 rounded-pill bg-accent-600 px-4 py-1.5 text-sm font-bold text-white">
+        <span class="size-2 animate-pulse rounded-full bg-white" aria-hidden="true"></span>
+        اورژانس دامپزشکی
+      </p>
+
+      <h1 class="mt-4 text-3xl font-extrabold text-ink-900 sm:text-4xl">
+        دامپزشکی شبانه‌روزی {city.fa}
+      </h1>
+
+      <p class="mt-4 max-w-2xl leading-8 text-ink-700">
+        {
+          count
+            ? `${faNum(count)} مرکز اورژانس ۲۴ ساعته — با شماره تماس مستقیم. همین حالا تماس بگیرید.`
+            : `فهرست مراکز شبانه‌روزی ${city.fa} در حال تکمیل است.`
+        }
+      </p>
+    </div>
+  </section>
+
+  <div class="container-page py-12">
+    <EmergencyList listings={listings} areaFa={city.fa} />
+
+    <EmergencyTriage />
+
+    {/* مناطق */}
+    {
+      zonesWith.length > 0 && (
+        <section aria-labelledby="zones" class="mt-14 border-t border-ink-200 pt-10">
+          <h2 id="zones" class="text-xl font-bold text-ink-900">
+            شبانه‌روزی به تفکیک منطقه
+          </h2>
+          <ul class="mt-5 flex flex-wrap gap-2.5">
+            {zonesWith.map(({ z, c }) => (
+              <li>
+                <a
+                  href={url.categoryZone('vet-24h', city.slug, z.slug)}
+                  class="inline-flex items-center gap-2 rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-700 transition-colors hover:border-accent-400 hover:text-accent-800"
+                >
+                  {z.fa}
+                  <span class="rounded-pill bg-accent-100 px-2 py-0.5 text-xs font-bold text-accent-800">
+                    {faNum(c)}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {/* محله‌ها */}
+    {
+      hoodsWith.length > 0 && (
+        <section aria-labelledby="hoods" class="mt-10">
+          <h2 id="hoods" class="text-xl font-bold text-ink-900">محله‌ها</h2>
+          <ul class="mt-5 flex flex-wrap gap-2.5">
+            {hoodsWith.map(({ n, c }) => (
+              <li>
+                <a
+                  href={url.categoryHood('vet-24h', city.slug, n.slug)}
+                  class="inline-flex items-center gap-2 rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-700 transition-colors hover:border-accent-400 hover:text-accent-800"
+                >
+                  دامپزشکی شبانه‌روزی {n.faAlt}
+                  <span class="rounded-pill bg-ink-100 px-2 py-0.5 text-xs font-bold">
+                    {faNum(c)}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {/* پیوند به محتوای عمیق‌تر */}
+    <section class="mt-12 rounded-card border border-ink-200 bg-surface-sunken p-7">
+      <h2 class="text-lg font-bold text-ink-900">بیشتر بدانید</h2>
+      <div class="mt-4 flex flex-wrap gap-3">
+        <a
+          href={url.blogPost('pet-emergency-signs')}
+          class="rounded-pill bg-surface px-4 py-2.5 text-sm font-medium text-ink-700 shadow-soft transition-colors hover:text-brand-700"
+        >
+          نشانه‌های اورژانسی در سگ و گربه
+        </a>
+        <a
+          href={url.categoryCity('vet', city.slug)}
+          class="rounded-pill bg-surface px-4 py-2.5 text-sm font-medium text-ink-700 shadow-soft transition-colors hover:text-brand-700"
+        >
+          همه‌ی دامپزشکی‌های {city.fa}
+        </a>
+        <a
+          href={url.categoryCity('vet-pharmacy', city.slug)}
+          class="rounded-pill bg-surface px-4 py-2.5 text-sm font-medium text-ink-700 shadow-soft transition-colors hover:text-brand-700"
+        >
+          داروخانه دامپزشکی
+        </a>
+      </div>
+    </section>
+
+    <Attribution />
+  </div>
+</Base>

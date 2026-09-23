@@ -57,8 +57,27 @@ export interface ListingQuery {
   areaNeighborhoods?: string[];
 }
 
+/**
+ * دسته‌های مشتق — دسته‌ای که رکورد مستقل ندارد و از فیلتر روی بقیه ساخته می‌شود.
+ *
+ * `vet-24h` رکورد جداگانه ندارد: یک کلینیک، «دامپزشکی» است که اتفاقاً
+ * ۲۴ ساعته کار می‌کند. ولی کوئری «دامپزشکی شبانه‌روزی» نیت کاملاً
+ * متفاوتی دارد (اورژانس، نیمه‌شب) و لندینگ اختصاصی می‌خواهد.
+ *
+ * ⚠️ فقط دامپزشکی شمرده می‌شود. پت شاپِ ۲۴ ساعته، اورژانس دامپزشکی نیست
+ * و آوردنش در این لیست یعنی فرستادن کسی که حیوانش در حال مرگ است به
+ * جای اشتباه.
+ */
+const DERIVED: Record<string, (l: Listing) => boolean> = {
+  'vet-24h': (l) => l.category === 'vet' && l.is24h,
+};
+
 export async function getListings(q: ListingQuery): Promise<Listing[]> {
-  let rows = ALL.filter((l) => l.city === q.city && l.category === q.category);
+  const derive = DERIVED[q.category];
+
+  let rows = derive
+    ? ALL.filter((l) => l.city === q.city && derive(l))
+    : ALL.filter((l) => l.city === q.city && l.category === q.category);
 
   if (q.area) {
     const inZone = q.areaNeighborhoods;
@@ -77,7 +96,10 @@ export async function getListings(q: ListingQuery): Promise<Listing[]> {
 
 /** شمارش سریع برای نمایش تعداد کنار لینک‌ها — بدون await */
 export function countListings(category: string, city: string, area?: string): number {
-  let rows = ALL.filter((l) => l.city === city && l.category === category);
+  const derive = DERIVED[category];
+  let rows = derive
+    ? ALL.filter((l) => l.city === city && derive(l))
+    : ALL.filter((l) => l.city === city && l.category === category);
   if (area) {
     const zoneHoods = neighborhoodsInZone(area).map((n) => n.slug);
     rows = zoneHoods.length
