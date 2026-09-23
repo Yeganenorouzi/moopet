@@ -1,0 +1,22 @@
+{
+  "name": "moopet",
+  "private": true,
+  "version": "0.0.0",
+  "description": "موپت — دایرکتوری خدمات حیوانات خانگی",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.0.0 <23.0.0"
+  },
+  "scripts": {
+    "dev": "npm run dev --workspace @moopet/web",
+    "dev:api": "npm run start:dev --workspace @moopet/api",
+    "build": "npm run build --workspace @moopet/web",
+    "preview": "npm run preview --workspace @moopet/web"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}

@@ -1,0 +1,13 @@
+{
+  // ترمینال پیش‌فرض این پروژه = PowerShell
+  // چون هوک fnm فقط در پروفایل PowerShell نصب شده و Node را
+  // خودکار به نسخه‌ی .node-version (22.23.2) سوییچ می‌کند.
+  // در cmd.exe این هوک کار نمی‌کند و Node 18 لاراگون غالب می‌شود.
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+
+  "files.eol": "\n",
+  "editor.formatOnSave": false,
+
+  // Astro
+  "[astro]": { "editor.defaultFormatter": "astro-build.astro-vscode" }
+}

@@ -1,0 +1,19 @@
+---
+/**
+ * تزریق structured data.
+ * petlink هیچ اسکیمایی ندارد — این یکی از سریع‌ترین راه‌های برتری در SERP است.
+ *
+ * ⚠️ هرگز AggregateRating جعلی نزن. پنالتی دستی گوگل دارد.
+ */
+interface Props {
+  data: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { data } = Astro.props;
+
+const payload = Array.isArray(data)
+  ? data.map((d) => ({ '@context': 'https://schema.org', ...d }))
+  : { '@context': 'https://schema.org', ...data };
+---
+
+<script type="application/ld+json" is:inline set:html={JSON.stringify(payload)} />

@@ -1,0 +1,33 @@
+---
+interface Props {
+  title: string;
+  subtitle?: string;
+  /** برچسب کوچک بالای عنوان */
+  eyebrow?: string;
+}
+
+const { title, subtitle, eyebrow } = Astro.props;
+---
+
+{/* ⚠️ این بخش المان LCP هر صفحه‌ی داخلی است — عمداً بدون انیمیشن. */}
+<section class="relative overflow-hidden border-b border-ink-200 bg-brand-50/60">
+  <div class="bg-dotted absolute inset-0 opacity-40" aria-hidden="true"></div>
+
+  <div class="container-page relative py-10 sm:py-14">
+    <slot />
+
+    {
+      eyebrow && (
+        <p class="mt-6 text-sm font-semibold text-brand-700">{eyebrow}</p>
+      )
+    }
+
+    <h1 class={`text-3xl font-extrabold text-ink-900 sm:text-4xl ${eyebrow ? 'mt-2' : 'mt-6'}`}>
+      {title}
+    </h1>
+
+    {subtitle && <p class="mt-4 max-w-2xl text-ink-600">{subtitle}</p>}
+
+    <slot name="below" />
+  </div>
+</section>

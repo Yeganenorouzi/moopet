@@ -1,0 +1,50 @@
+---
+import Base from '../layouts/Base.astro';
+import SearchBox from '../components/ui/SearchBox.astro';
+import { primaryCategories, url } from '../lib/taxonomy';
+
+const cats = primaryCategories().slice(0, 6);
+---
+
+<Base title="صفحه پیدا نشد" description="این صفحه وجود ندارد." noindex={true}>
+  <section class="container-page flex min-h-[65vh] items-center py-20">
+    <div class="mx-auto max-w-xl text-center">
+      <p class="text-7xl" aria-hidden="true">🐾</p>
+
+      <h1 class="mt-6 text-3xl font-extrabold text-ink-900 sm:text-4xl">
+        این صفحه پیدا نشد
+      </h1>
+
+      <p class="mt-4 leading-9 text-ink-600">
+        شاید آدرس تغییر کرده یا اشتباه تایپ شده باشد. از جست‌وجو استفاده کنید یا
+        از دسته‌های زیر شروع کنید.
+      </p>
+
+      <div class="mt-8">
+        <SearchBox compact />
+      </div>
+
+      <ul class="mt-8 flex flex-wrap justify-center gap-2.5">
+        {
+          cats.map((c) => (
+            <li>
+              <a
+                href={url.category(c.slug)}
+                class="inline-block rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-600 transition-colors hover:border-brand-300 hover:text-brand-800"
+              >
+                {c.fa}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+
+      <a
+        href="/"
+        class="mt-10 inline-block rounded-pill bg-brand-700 px-7 py-3 font-semibold text-white transition-colors hover:bg-brand-800"
+      >
+        بازگشت به صفحه اصلی
+      </a>
+    </div>
+  </section>
+</Base>

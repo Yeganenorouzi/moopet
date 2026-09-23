@@ -1,0 +1,233 @@
+---
+import '../styles/global.css';
+import Seo from '../components/seo/Seo.astro';
+import JsonLd from '../components/seo/JsonLd.astro';
+import Logo from '../components/ui/Logo.astro';
+import { SITE } from '../lib/site';
+import { shamsiYear } from '../lib/format';
+import { primaryCategories, categoriesByPriority, url } from '../lib/taxonomy';
+
+interface Props {
+  title?: string;
+  description?: string;
+  canonical?: string;
+  noindex?: boolean;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+}
+
+const { title, description, canonical, noindex, ogType, ogImage } = Astro.props;
+
+const navCategories = primaryCategories().slice(0, 5);
+const footerCategories = categoriesByPriority().slice(0, 8);
+
+const globalSchema = [
+  {
+    '@type': 'Organization',
+    '@id': `${SITE.url}/#organization`,
+    name: SITE.name,
+    url: SITE.url,
+    description: SITE.description,
+    areaServed: { '@type': 'City', name: SITE.defaultCityFa },
+  },
+  {
+    '@type': 'WebSite',
+    '@id': `${SITE.url}/#website`,
+    name: SITE.name,
+    url: SITE.url,
+    inLanguage: 'fa-IR',
+    publisher: { '@id': `${SITE.url}/#organization` },
+  },
+];
+---
+
+<!doctype html>
+<html lang={SITE.lang} dir={SITE.dir}>
+  <head>
+    <Seo
+      title={title}
+      description={description}
+      canonical={canonical}
+      noindex={noindex}
+      ogType={ogType}
+      ogImage={ogImage}
+    />
+    <JsonLd data={globalSchema} />
+
+    {/* فونت اصلی پیش از رندر متن لازم است — preload جلوی پرش فونت را می‌گیرد */}
+    <link
+      rel="preload"
+      href="/fonts/Vazirmatn-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+  </head>
+
+  <body class="bg-surface text-ink-800 antialiased">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:z-50 focus:rounded-lg focus:bg-brand-700 focus:px-4 focus:py-2 focus:text-white focus:shadow-lift"
+      style="inset-inline-start: 0.75rem;"
+    >
+      رفتن به محتوای اصلی
+    </a>
+
+    <!-- ══════════ هدر ══════════ -->
+    <header
+      class="sticky top-0 z-40 border-b border-ink-200/70 bg-surface/85 backdrop-blur-md"
+    >
+      <div class="container-page flex h-16 items-center gap-4 sm:gap-6">
+        <Logo />
+
+        <nav aria-label="دسته‌های اصلی" class="hidden lg:block">
+          <ul class="flex items-center gap-1">
+            {
+              navCategories.map((c) => (
+                <li>
+                  <a
+                    href={url.category(c.slug)}
+                    class="rounded-lg px-3 py-2 text-sm font-medium text-ink-600 transition-colors hover:bg-brand-50 hover:text-brand-800"
+                  >
+                    {c.fa}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+
+        <div class="flex items-center gap-2" style="margin-inline-start: auto;">
+          <a
+            href="/panel/register-business/"
+            class="hidden rounded-pill bg-brand-700 px-4 py-2 text-sm font-semibold text-white shadow-soft transition-all hover:bg-brand-800 hover:shadow-lift sm:inline-block"
+          >
+            ثبت کسب‌وکار
+          </a>
+
+          <details class="relative lg:hidden">
+            <summary
+              class="flex size-10 cursor-pointer list-none items-center justify-center rounded-lg text-ink-700 transition-colors hover:bg-ink-100"
+              aria-label="منو"
+            >
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path
+                  d="M4 7h16M4 12h16M4 17h16"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"></path>
+              </svg>
+            </summary>
+            <div
+              class="absolute top-12 w-60 rounded-card border border-ink-200 bg-surface p-2 shadow-lift"
+              style="inset-inline-end: 0;"
+            >
+              <ul class="max-h-[70vh] overflow-y-auto">
+                {
+                  categoriesByPriority().map((c) => (
+                    <li>
+                      <a
+                        href={url.category(c.slug)}
+                        class="block rounded-lg px-3 py-2.5 text-sm text-ink-700 transition-colors hover:bg-brand-50 hover:text-brand-800"
+                      >
+                        {c.fa}
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+              <a
+                href="/panel/register-business/"
+                class="mt-2 block rounded-lg bg-brand-700 px-3 py-2.5 text-center text-sm font-semibold text-white sm:hidden"
+              >
+                ثبت کسب‌وکار
+              </a>
+            </div>
+          </details>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <!-- ══════════ فوتر ══════════ -->
+    <footer class="mt-24 border-t border-ink-200 bg-surface-sunken">
+      <div class="container-page py-14">
+        <div class="grid gap-10 sm:grid-cols-2 lg:grid-cols-12">
+          <div class="lg:col-span-4">
+            <Logo />
+            <p class="mt-4 max-w-sm text-sm leading-8 text-ink-600">
+              بانک اطلاعات خدمات حیوانات خانگی — نزدیک‌ترین دامپزشکی، پت شاپ،
+              آرایشگاه و پانسیون را با آدرس و تلفن پیدا کنید.
+            </p>
+          </div>
+
+          <nav aria-labelledby="f-cat" class="lg:col-span-3">
+            <h2 id="f-cat" class="text-sm font-bold text-ink-900">
+              دسته‌های پرجست‌وجو
+            </h2>
+            <ul class="mt-4 space-y-2.5 text-sm">
+              {
+                footerCategories.map((c) => (
+                  <li>
+                    <a
+                      href={url.category(c.slug)}
+                      class="text-ink-600 transition-colors hover:text-brand-700"
+                    >
+                      {c.fa}
+                    </a>
+                  </li>
+                ))
+              }
+            </ul>
+          </nav>
+
+          <nav aria-labelledby="f-about" class="lg:col-span-2">
+            <h2 id="f-about" class="text-sm font-bold text-ink-900">موپت</h2>
+            <ul class="mt-4 space-y-2.5 text-sm">
+              <li>
+                <a href="/about/" class="text-ink-600 transition-colors hover:text-brand-700">
+                  درباره ما
+                </a>
+              </li>
+              <li>
+                <a href="/contact/" class="text-ink-600 transition-colors hover:text-brand-700">
+                  تماس با ما
+                </a>
+              </li>
+              <li>
+                <a href="/blog/" class="text-ink-600 transition-colors hover:text-brand-700">
+                  مجله موپت
+                </a>
+              </li>
+            </ul>
+          </nav>
+
+          <div class="lg:col-span-3">
+            <h2 class="text-sm font-bold text-ink-900">صاحب کسب‌وکار هستید؟</h2>
+            <p class="mt-4 text-sm leading-8 text-ink-600">
+              مرکز خود را رایگان ثبت کنید تا مشتریان محله‌تان پیدایتان کنند.
+            </p>
+            <a
+              href="/panel/register-business/"
+              class="mt-4 inline-block rounded-pill border-2 border-brand-700 px-4 py-2 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-700 hover:text-white"
+            >
+              ثبت رایگان
+            </a>
+          </div>
+        </div>
+
+        <p class="mt-12 border-t border-ink-200 pt-6 text-center text-xs text-ink-500">
+          © {shamsiYear()} {SITE.name} — همه‌ی حقوق محفوظ است.
+        </p>
+      </div>
+    </footer>
+
+    <script>
+      import { initAnimations } from '../scripts/animations';
+      initAnimations();
+    </script>
+  </body>
+</html>

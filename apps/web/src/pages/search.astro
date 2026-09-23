@@ -1,0 +1,151 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/ui/PageHero.astro';
+import SearchBox from '../components/ui/SearchBox.astro';
+import { categoriesByPriority, neighborhoods, url } from '../lib/taxonomy';
+import { SITE } from '../lib/site';
+
+/**
+ * ⚠️ تنها صفحه‌ی on-demand سایت.
+ * صفحات نتیجه‌ی جست‌وجو URL بی‌نهایت تولید می‌کنند و محتوای تکراری‌اند،
+ * پس هم noindex‌اند هم در robots.txt مسدود شده‌اند.
+ * مرجع: docs/seo/00-taxonomy-and-urls.md §۶
+ */
+export const prerender = false;
+
+const q = (Astro.url.searchParams.get('q') ?? '').trim();
+const city = SITE.defaultCity;
+
+/** تطبیق ساده‌ی متنی تا زمان اتصال Meilisearch در فاز ۵ */
+const norm = (s: string) => s.replace(/‌/g, ' ').replace(/[يى]/g, 'ی').replace(/ك/g, 'ک');
+const nq = norm(q);
+
+const catHits = nq
+  ? categoriesByPriority().filter((c) => norm(c.fa).includes(nq) || nq.includes(norm(c.fa)))
+  : [];
+
+const hoodHits = nq
+  ? neighborhoods.filter((n) => norm(n.fa).includes(nq) || nq.includes(norm(n.faAlt)))
+  : [];
+
+/** اگر هم دسته و هم محله تشخیص داده شد، مستقیم به صفحه‌ی هدف راهنمایی کن */
+const best =
+  catHits.length > 0 && hoodHits.length > 0
+    ? { cat: catHits[0], hood: hoodHits[0] }
+    : null;
+---
+
+<Base
+  title={q ? `جست‌وجوی «${q}»` : 'جست‌وجو'}
+  description="جست‌وجو در مراکز خدمات حیوانات خانگی"
+  noindex={true}
+>
+  <PageHero title={q ? `نتایج برای «${q}»` : 'جست‌وجو'}>
+    <div slot="below" class="mt-8 max-w-xl">
+      <SearchBox value={q} compact />
+    </div>
+  </PageHero>
+
+  <div class="container-page py-14">
+    {
+      best && (
+        <a
+          href={url.categoryHood(best.cat.slug, city, best.hood.slug)}
+          class="mb-10 block rounded-card border-2 border-brand-300 bg-brand-50 p-7 transition-colors hover:bg-brand-100"
+        >
+          <p class="text-sm font-semibold text-brand-700">پیشنهاد موپت</p>
+          <p class="mt-2 text-xl font-extrabold text-brand-900">
+            {best.cat.faPlural} در {best.hood.fa}
+          </p>
+          <p class="mt-2 text-sm text-brand-800/80">مشاهده‌ی فهرست کامل ←</p>
+        </a>
+      )
+    }
+
+    {
+      catHits.length > 0 && (
+        <section aria-labelledby="s-cat" class="mb-12">
+          <h2 id="s-cat" class="text-lg font-bold text-ink-900">
+            دسته‌ها
+          </h2>
+          <ul class="mt-4 flex flex-wrap gap-2.5">
+            {catHits.map((c) => (
+              <li>
+                <a
+                  href={url.categoryCity(c.slug, city)}
+                  class="inline-block rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-700 transition-colors hover:border-brand-300 hover:text-brand-800"
+                >
+                  {c.faPlural} در تهران
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      hoodHits.length > 0 && (
+        <section aria-labelledby="s-hood" class="mb-12">
+          <h2 id="s-hood" class="text-lg font-bold text-ink-900">
+            محله‌ها
+          </h2>
+          <ul class="mt-4 flex flex-wrap gap-2.5">
+            {hoodHits.map((n) => (
+              <li>
+                <a
+                  href={url.categoryHood('vet', city, n.slug)}
+                  class="inline-block rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-700 transition-colors hover:border-brand-300 hover:text-brand-800"
+                >
+                  دامپزشکی {n.faAlt}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      q && catHits.length === 0 && hoodHits.length === 0 && (
+        <div class="rounded-card border border-dashed border-ink-300 bg-surface p-12 text-center">
+          <p class="text-4xl" aria-hidden="true">
+            🔍
+          </p>
+          <p class="mt-4 font-bold text-ink-800">نتیجه‌ای پیدا نشد</p>
+          <p class="mx-auto mt-2 max-w-md text-sm leading-8 text-ink-600">
+            نام دسته (مثلاً «دامپزشکی») یا محله (مثلاً «سعادت آباد») را امتحان
+            کنید.
+          </p>
+        </div>
+      )
+    }
+
+    {
+      !q && (
+        <section aria-labelledby="s-all">
+          <h2 id="s-all" class="text-lg font-bold text-ink-900">
+            همه‌ی دسته‌ها
+          </h2>
+          <ul class="mt-4 flex flex-wrap gap-2.5">
+            {categoriesByPriority().map((c) => (
+              <li>
+                <a
+                  href={url.category(c.slug)}
+                  class="inline-block rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-700 transition-colors hover:border-brand-300 hover:text-brand-800"
+                >
+                  {c.fa}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <p class="mt-12 text-xs text-ink-500">
+      ⚠️ جست‌وجوی کامل در فاز ۵ با Meilisearch پیاده می‌شود. فعلاً فقط دسته و
+      محله تطبیق داده می‌شود.
+    </p>
+  </div>
+</Base>

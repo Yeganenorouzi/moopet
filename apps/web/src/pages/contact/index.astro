@@ -1,0 +1,154 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/seo/Breadcrumbs.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import { SITE } from '../../lib/site';
+
+const channels = [
+  {
+    t: 'ایمیل',
+    d: 'برای همکاری، گزارش خطا یا اصلاح اطلاعات یک مرکز',
+    v: 'hello@moopet.ir',
+    href: 'mailto:hello@moopet.ir',
+  },
+  {
+    t: 'ثبت کسب‌وکار',
+    d: 'اگر صاحب مرکز خدمات حیوانات هستید',
+    v: 'فرم ثبت‌نام',
+    href: '/panel/register-business/',
+  },
+];
+
+const schema = {
+  '@type': 'ContactPage',
+  name: 'تماس با موپت',
+  url: `${SITE.url}/contact/`,
+  mainEntity: {
+    '@type': 'Organization',
+    name: SITE.name,
+    email: 'hello@moopet.ir',
+  },
+};
+---
+
+<Base
+  title="تماس با ما"
+  description="راه‌های ارتباط با تیم موپت — گزارش اطلاعات نادرست، پیشنهاد همکاری و پشتیبانی صاحبان کسب‌وکار."
+>
+  <JsonLd data={schema} />
+
+  <PageHero
+    title="تماس با ما"
+    subtitle="هر پیامی درباره‌ی اطلاعات نادرست یک مرکز را جدی می‌گیریم و بررسی می‌کنیم."
+  >
+    <Breadcrumbs
+      items={[
+        { name: 'موپت', href: '/' },
+        { name: 'تماس با ما', href: '/contact/' },
+      ]}
+    />
+  </PageHero>
+
+  <div class="container-page py-16">
+    <div class="mx-auto grid max-w-5xl gap-8 lg:grid-cols-5">
+      <!-- کانال‌ها -->
+      <div class="lg:col-span-2">
+        <div class="space-y-4" data-anim="up" data-anim-stagger="0.25">
+          {
+            channels.map((c) => (
+              <a
+                href={c.href}
+                class="block rounded-card border border-ink-200 bg-surface p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-lift"
+              >
+                <h2 class="font-bold text-ink-900">{c.t}</h2>
+                <p class="mt-2 text-sm leading-7 text-ink-600">{c.d}</p>
+                <p class="mt-3 font-semibold text-brand-700">{c.v}</p>
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- فرم -->
+      <div class="lg:col-span-3">
+        <form
+          class="rounded-card border border-ink-200 bg-surface p-7 shadow-soft"
+          method="post"
+          action="/api/contact"
+        >
+          <h2 class="text-lg font-bold text-ink-900">ارسال پیام</h2>
+
+          <div class="mt-6 space-y-5">
+            <div>
+              <label for="name" class="block text-sm font-medium text-ink-700">
+                نام شما
+              </label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                class="mt-2 w-full rounded-xl border border-ink-200 bg-surface px-4 py-2.5 outline-none transition-colors focus:border-brand-400"
+              />
+            </div>
+
+            <div>
+              <label for="email" class="block text-sm font-medium text-ink-700">
+                ایمیل
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                dir="ltr"
+                class="mt-2 w-full rounded-xl border border-ink-200 bg-surface px-4 py-2.5 text-start outline-none transition-colors focus:border-brand-400"
+              />
+            </div>
+
+            <div>
+              <label for="subject" class="block text-sm font-medium text-ink-700">
+                موضوع
+              </label>
+              <select
+                id="subject"
+                name="subject"
+                class="mt-2 w-full rounded-xl border border-ink-200 bg-surface px-4 py-2.5 outline-none transition-colors focus:border-brand-400"
+              >
+                <option>گزارش اطلاعات نادرست</option>
+                <option>پشتیبانی کسب‌وکار</option>
+                <option>پیشنهاد همکاری</option>
+                <option>سایر</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="message" class="block text-sm font-medium text-ink-700">
+                پیام
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                rows="5"
+                required
+                class="mt-2 w-full resize-y rounded-xl border border-ink-200 bg-surface px-4 py-2.5 leading-8 outline-none transition-colors focus:border-brand-400"
+              ></textarea>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="mt-7 w-full rounded-pill bg-brand-700 px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-800 sm:w-auto"
+          >
+            ارسال پیام
+          </button>
+
+          <p class="mt-4 text-xs text-ink-500">
+            ⚠️ این فرم هنوز به بک‌اند وصل نشده است (فاز ۵).
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</Base>

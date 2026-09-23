@@ -1,0 +1,71 @@
+---
+import type { Listing } from '../../lib/listings';
+import JsonLd from '../seo/JsonLd.astro';
+import ListingCard from './ListingCard.astro';
+import { SITE } from '../../lib/site';
+import { url } from '../../lib/taxonomy';
+
+interface Props {
+  listings: Listing[];
+  categoryFa: string;
+  areaFa: string;
+}
+
+const { listings, categoryFa, areaFa } = Astro.props;
+
+/**
+ * ItemList فقط وقتی تزریق می‌شود که واقعاً آیتمی باشد.
+ * اسکیمای خالی سیگنال بدی به گوگل می‌دهد.
+ */
+const schema =
+  listings.length > 0
+    ? {
+        '@type': 'ItemList',
+        name: `${categoryFa} ${areaFa}`,
+        numberOfItems: listings.length,
+        itemListElement: listings.map((l, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          url: new URL(url.clinic(l.city, l.slug), SITE.url).href,
+          name: l.name,
+        })),
+      }
+    : null;
+---
+
+{schema && <JsonLd data={schema} />}
+
+{
+  listings.length > 0 ? (
+    <ul class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3" data-anim="up" data-anim-stagger="0.35">
+      {listings.map((l) => (
+        <li class="relative">
+          <ListingCard listing={l} />
+        </li>
+      ))}
+    </ul>
+  ) : (
+    /* حالت خالی — صادقانه، بدون محتوای پرکننده.
+       این صفحه همزمان noindex است تا گوگل آن را نبیند. */
+    <div class="rounded-card border border-dashed border-ink-300 bg-surface p-12 text-center">
+      <p class="text-5xl" aria-hidden="true">
+        🐾
+      </p>
+      {/* ⚠️ پسوند «ی» نکره اضافه نمی‌شود: «دامپزشکی» + «ی» = «دامپزشکیی».
+          کلمات مختوم به ی این پسوند را نمی‌گیرند، پس جمله بازنویسی شده. */}
+      <p class="mt-5 font-bold text-ink-800">
+        هنوز {categoryFa} در {areaFa} ثبت نشده است
+      </p>
+      <p class="mx-auto mt-3 max-w-md text-sm leading-8 text-ink-600">
+        اگر در این محله {categoryFa} دارید، رایگان ثبتش کنید تا اولین مرکزی
+        باشید که مشتریان اینجا پیدا می‌کنند.
+      </p>
+      <a
+        href="/panel/register-business/"
+        class="mt-6 inline-block rounded-pill bg-brand-700 px-6 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-brand-800"
+      >
+        ثبت رایگان کسب‌وکار
+      </a>
+    </div>
+  )
+}

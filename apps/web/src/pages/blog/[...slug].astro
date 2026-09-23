@@ -1,0 +1,182 @@
+---
+import { getCollection, render, type CollectionEntry } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/seo/Breadcrumbs.astro';
+import JsonLd from '../../components/seo/JsonLd.astro';
+import { SITE, absoluteUrl } from '../../lib/site';
+import { getCategory, url } from '../../lib/taxonomy';
+import { faDate, faNum, readingMinutes } from '../../lib/format';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+type Props = { post: CollectionEntry<'blog'> };
+const { post } = Astro.props;
+const { Content } = await render(post);
+
+const related = post.data.relatedCategory
+  ? getCategory(post.data.relatedCategory)
+  : undefined;
+
+const minutes = readingMinutes(post.body ?? '');
+
+const schema = {
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  datePublished: post.data.publishedAt.toISOString(),
+  dateModified: (post.data.updatedAt ?? post.data.publishedAt).toISOString(),
+  inLanguage: 'fa-IR',
+  mainEntityOfPage: absoluteUrl(url.blogPost(post.id)),
+  author: { '@type': 'Organization', name: SITE.name },
+  publisher: { '@id': `${SITE.url}/#organization` },
+};
+---
+
+<Base
+  title={post.data.title}
+  description={post.data.description}
+  ogType="article"
+  ogImage={post.data.cover}
+>
+  <JsonLd data={schema} />
+
+  {/* نوار پیشرفت مطالعه — scaleX است نه width تا CLS ایجاد نکند */}
+  <div
+    id="progress"
+    class="fixed inset-x-0 top-0 z-50 h-1 origin-right bg-accent-500"
+    style="transform: scaleX(0)"
+    aria-hidden="true"
+  >
+  </div>
+
+  <article>
+    <header class="border-b border-ink-200 bg-brand-50/60">
+      <div class="container-page py-10 sm:py-14">
+        <div class="mx-auto max-w-3xl">
+          <Breadcrumbs
+            items={[
+              { name: 'موپت', href: '/' },
+              { name: 'مجله', href: '/blog/' },
+              { name: post.data.title, href: url.blogPost(post.id) },
+            ]}
+          />
+
+          <h1 class="mt-6 text-3xl font-extrabold text-ink-900 sm:text-4xl">
+            {post.data.title}
+          </h1>
+
+          <p class="mt-4 text-ink-600">{post.data.description}</p>
+
+          <div class="mt-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-ink-500">
+            <time datetime={post.data.publishedAt.toISOString()}>
+              {faDate(post.data.publishedAt)}
+            </time>
+            <span aria-hidden="true">·</span>
+            <span>{faNum(minutes)} دقیقه مطالعه</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="container-page py-14">
+      {
+        post.data.cover && (
+          <img
+            src={post.data.cover}
+            alt=""
+            width="1200"
+            height="630"
+            /* کاور بالای مقاله المان LCP است — eager و بدون lazy */
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="mx-auto mb-12 aspect-[1200/630] w-full max-w-3xl rounded-card object-cover shadow-soft"
+          />
+        )
+      }
+
+      <div class="prose-fa mx-auto max-w-3xl">
+        <Content />
+      </div>
+
+      {
+        related && (
+          <aside class="mx-auto mt-14 max-w-3xl rounded-card border border-brand-200 bg-brand-50 p-7">
+            <h2 class="font-bold text-brand-900">دنبال {related.fa} می‌گردید؟</h2>
+            <p class="mt-2 text-sm leading-8 text-brand-800/80">
+              فهرست {related.faPlural} در تهران را به تفکیک محله ببینید.
+            </p>
+            <a
+              href={url.category(related.slug)}
+              class="mt-4 inline-block rounded-pill bg-brand-700 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-800"
+            >
+              مشاهده‌ی {related.faPlural}
+            </a>
+          </aside>
+        )
+      }
+    </div>
+  </article>
+
+  <script>
+    import { initReadingProgress } from '../../scripts/animations';
+    const bar = document.getElementById('progress');
+    if (bar) initReadingProgress(bar);
+  </script>
+</Base>
+
+<style is:global>
+  /* تایپوگرافی متن مقاله — دستی نوشته شده تا وابستگی @tailwindcss/typography
+     اضافه نشود و کنترل کامل روی فاصله‌های فارسی داشته باشیم. */
+  .prose-fa {
+    line-height: 2.1;
+    color: var(--color-ink-700);
+  }
+  .prose-fa > * + * {
+    margin-block-start: 1.25rem;
+  }
+  .prose-fa h2 {
+    margin-block-start: 2.75rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--color-ink-900);
+  }
+  .prose-fa h3 {
+    margin-block-start: 2rem;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-ink-900);
+  }
+  .prose-fa ul,
+  .prose-fa ol {
+    padding-inline-start: 1.5rem;
+  }
+  .prose-fa ul {
+    list-style: disc;
+  }
+  .prose-fa ol {
+    list-style: decimal;
+  }
+  .prose-fa li + li {
+    margin-block-start: 0.5rem;
+  }
+  .prose-fa a {
+    color: var(--color-brand-700);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+  }
+  .prose-fa strong {
+    color: var(--color-ink-900);
+    font-weight: 700;
+  }
+  .prose-fa hr {
+    margin-block: 2.5rem;
+    border-color: var(--color-ink-200);
+  }
+</style>

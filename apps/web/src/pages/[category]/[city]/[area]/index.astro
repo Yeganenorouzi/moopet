@@ -1,0 +1,170 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../../../layouts/Base.astro';
+import Breadcrumbs from '../../../../components/seo/Breadcrumbs.astro';
+import PageHero from '../../../../components/ui/PageHero.astro';
+import ListingGrid from '../../../../components/ui/ListingGrid.astro';
+import Reviews from '../../../../components/ui/Reviews.astro';
+import Attribution from '../../../../components/ui/Attribution.astro';
+import {
+  categories,
+  cities,
+  zones,
+  neighborhoods,
+  neighborhoodsInZone,
+  url,
+} from '../../../../lib/taxonomy';
+import { getListings, shouldIndex } from '../../../../lib/listings';
+import { getRecentReviews } from '../../../../lib/reviews';
+import { faNum } from '../../../../lib/format';
+
+/**
+ * این روت هم zone می‌گیرد هم محله — عمداً هم‌سطح‌اند، نه تودرتو.
+ * دلیل: /vet/tehran/west/saadat-abad/ چهار سگمنت می‌شد و لینک‌جویس را
+ * رقیق می‌کرد. سلسله‌مراتب از طریق breadcrumb به گوگل اعلام می‌شود.
+ * مرجع: docs/seo/00-taxonomy-and-urls.md §۴
+ */
+export const getStaticPaths = (async () => {
+  const paths = [];
+
+  for (const c of categories) {
+    for (const city of cities) {
+      for (const z of zones.filter((z) => z.city === city.slug)) {
+        paths.push({
+          params: { category: c.slug, city: city.slug, area: z.slug },
+          props: { category: c, city, areaKind: 'zone' as const, zone: z, hood: null },
+        });
+      }
+      for (const n of neighborhoods) {
+        paths.push({
+          params: { category: c.slug, city: city.slug, area: n.slug },
+          props: { category: c, city, areaKind: 'hood' as const, zone: null, hood: n },
+        });
+      }
+    }
+  }
+
+  return paths;
+}) satisfies GetStaticPaths;
+
+const { category, city, areaKind, zone, hood } = Astro.props;
+
+const isZone = areaKind === 'zone';
+
+/** برای محله شکل بدون نیم‌فاصله — کاربر این‌طور تایپ می‌کند */
+const areaFa = isZone ? zone!.fa : hood!.faAlt;
+const areaFaCanonical = isZone ? zone!.fa : hood!.fa;
+const areaSlug = isZone ? zone!.slug : hood!.slug;
+
+const listings = await getListings({
+  category: category.slug,
+  city: city.slug,
+  area: areaSlug,
+  areaNeighborhoods: isZone ? neighborhoodsInZone(zone!.slug).map((n) => n.slug) : undefined,
+});
+
+const indexable = shouldIndex(listings);
+const count = listings.length;
+
+/**
+ * تطابق کلمه‌ی کلیدی فارسی — چون URL انگلیسی است، این تنها جای تطابق
+ * با کوئری کاربر است. هر دو شکل نیم‌فاصله‌دار و بدون آن پوشش داده می‌شود.
+ */
+const title = count
+  ? `${category.fa} ${areaFa} | ${faNum(count)} ${category.fa} در ${areaFaCanonical}`
+  : `${category.fa} ${areaFa} | ${category.faPlural} در ${areaFaCanonical} تهران`;
+
+const description = `لیست ${category.faPlural} در ${areaFa} با آدرس دقیق، شماره تماس و ساعت کاری. نزدیک‌ترین ${category.fa} در ${areaFaCanonical} را در موپت پیدا کنید.`;
+
+/** لینک‌سازی افقی به محله‌های همجوار */
+const siblings = isZone
+  ? neighborhoodsInZone(zone!.slug)
+  : neighborhoods.filter((n) => n.zone === hood!.zone && n.slug !== hood!.slug);
+
+const parentZone = isZone ? null : zones.find((z) => z.slug === hood!.zone);
+
+/** دیدگاه‌ها — فعلاً خالی تا اتصال به API در فاز ۵ */
+const reviews = await getRecentReviews();
+---
+
+<Base title={title} description={description} noindex={!indexable}>
+  <PageHero
+    eyebrow={isZone ? 'منطقه' : parentZone?.fa}
+    title={`${category.faPlural} در ${areaFaCanonical}`}
+    subtitle={count
+      ? `${faNum(count)} مرکز در ${areaFaCanonical}`
+      : `هنوز مرکزی در ${areaFaCanonical} ثبت نشده است.`}
+  >
+    <Breadcrumbs
+      items={[
+        { name: 'موپت', href: '/' },
+        { name: category.fa, href: url.category(category.slug) },
+        { name: city.fa, href: url.categoryCity(category.slug, city.slug) },
+        ...(parentZone
+          ? [
+              {
+                name: parentZone.fa,
+                href: url.categoryZone(category.slug, city.slug, parentZone.slug),
+              },
+            ]
+          : []),
+        {
+          name: areaFaCanonical,
+          href: url.categoryHood(category.slug, city.slug, areaSlug),
+        },
+      ]}
+    />
+  </PageHero>
+
+  <div class="container-page py-14">
+    <ListingGrid listings={listings} categoryFa={category.fa} areaFa={areaFaCanonical} />
+
+    <Reviews reviews={reviews} subject={`${category.faPlural} ${areaFaCanonical}`} />
+
+    {
+      siblings.length > 0 && (
+        <section aria-labelledby="near" class="mt-16 border-t border-ink-200 pt-12">
+          <h2 id="near" class="text-lg font-bold text-ink-900">
+            {category.fa} در محله‌های نزدیک
+          </h2>
+          <ul class="mt-5 flex flex-wrap gap-2.5" data-anim="up" data-anim-stagger="0.4">
+            {siblings.map((n) => (
+              <li>
+                <a
+                  href={url.categoryHood(category.slug, city.slug, n.slug)}
+                  class="inline-block rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-600 transition-all hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-800 hover:shadow-soft"
+                >
+                  {category.fa} {n.faAlt}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section aria-labelledby="other-cats" class="mt-14">
+      <h2 id="other-cats" class="text-lg font-bold text-ink-900">
+        سایر خدمات در {areaFaCanonical}
+      </h2>
+      <ul class="mt-5 flex flex-wrap gap-2.5">
+        {
+          categories
+            .filter((c) => c.slug !== category.slug && c.priority <= 3)
+            .map((c) => (
+              <li>
+                <a
+                  href={url.categoryHood(c.slug, city.slug, areaSlug)}
+                  class="inline-block rounded-pill bg-ink-100 px-4 py-2.5 text-sm text-ink-600 transition-colors hover:bg-brand-50 hover:text-brand-800"
+                >
+                  {c.fa} {areaFa}
+                </a>
+              </li>
+            ))
+        }
+      </ul>
+    </section>
+
+    <Attribution />
+  </div>
+</Base>

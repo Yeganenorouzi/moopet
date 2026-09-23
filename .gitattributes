@@ -1,0 +1,14 @@
+# نرمال‌سازی پایان خط.
+# بدون این، هر کامیت از ویندوز کل فایل را «تغییریافته» نشان می‌دهد.
+* text=auto eol=lf
+
+# فایل‌های ویندوزی که باید CRLF بمانند
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# باینری — هرگز دستکاری نشود
+*.png binary
+*.jpg binary
+*.webp binary
+*.woff2 binary
+*.ico binary

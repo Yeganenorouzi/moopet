@@ -1,0 +1,196 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PageHero from '../../../components/ui/PageHero.astro';
+import Breadcrumbs from '../../../components/seo/Breadcrumbs.astro';
+import { categoriesByPriority, zones, neighborhoods } from '../../../lib/taxonomy';
+
+/**
+ * صفحه‌ی پنل — noindex.
+ * محتوای تراکنشی است و ارزش ایندکس ندارد؛ ضمناً در robots.txt هم Disallow شده.
+ */
+const cats = categoriesByPriority();
+
+const benefits = [
+  { t: 'دیده شدن در محله', d: 'وقتی کسی «دامپزشکی سعادت آباد» را جست‌وجو می‌کند، شما در نتایج باشید.' },
+  { t: 'پروفایل کامل', d: 'آدرس، نقشه، تلفن، ساعت کاری، خدمات و تصاویر مرکز.' },
+  { t: 'بدون هزینه', d: 'ثبت و نمایش پایه همیشه رایگان است.' },
+];
+---
+
+<Base
+  title="ثبت کسب‌وکار"
+  description="مرکز خدمات حیوانات خانگی خود را رایگان در موپت ثبت کنید."
+  noindex={true}
+>
+  <PageHero
+    eyebrow="رایگان"
+    title="کسب‌وکارتان را در موپت ثبت کنید"
+    subtitle="فرم زیر را پر کنید. پس از بررسی کارشناسان، پروفایل شما منتشر می‌شود."
+  >
+    <Breadcrumbs
+      items={[
+        { name: 'موپت', href: '/' },
+        { name: 'ثبت کسب‌وکار', href: '/panel/register-business/' },
+      ]}
+    />
+  </PageHero>
+
+  <div class="container-page py-16">
+    <div class="mx-auto grid max-w-5xl gap-8 lg:grid-cols-5">
+      <!-- مزایا -->
+      <aside class="lg:col-span-2">
+        <div class="space-y-4" data-anim="up" data-anim-stagger="0.25">
+          {
+            benefits.map((b, i) => (
+              <div class="rounded-card border border-ink-200 bg-surface p-6 shadow-soft">
+                <span class="grid size-9 place-items-center rounded-lg bg-accent-100 text-sm font-extrabold text-accent-800">
+                  {['۱', '۲', '۳'][i]}
+                </span>
+                <h2 class="mt-4 font-bold text-ink-900">{b.t}</h2>
+                <p class="mt-2 text-sm leading-8 text-ink-600">{b.d}</p>
+              </div>
+            ))
+          }
+        </div>
+      </aside>
+
+      <!-- فرم -->
+      <div class="lg:col-span-3">
+        <form
+          method="post"
+          action="/api/listings"
+          class="rounded-card border border-ink-200 bg-surface p-7 shadow-soft"
+        >
+          <div class="space-y-5">
+            <div>
+              <label for="biz-name" class="block text-sm font-medium text-ink-700">
+                نام مرکز <span class="text-accent-600">*</span>
+              </label>
+              <input
+                id="biz-name"
+                name="name"
+                type="text"
+                required
+                placeholder="مثلاً: کلینیک دامپزشکی پارسیان"
+                class="mt-2 w-full rounded-xl border border-ink-200 bg-surface px-4 py-2.5 outline-none transition-colors placeholder:text-ink-400 focus:border-brand-400"
+              />
+            </div>
+
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div>
+                <label for="biz-cat" class="block text-sm font-medium text-ink-700">
+                  نوع کسب‌وکار <span class="text-accent-600">*</span>
+                </label>
+                <select
+                  id="biz-cat"
+                  name="category"
+                  required
+                  class="mt-2 w-full rounded-xl border border-ink-200 bg-surface px-4 py-2.5 outline-none transition-colors focus:border-brand-400"
+                >
+                  {cats.filter((c) => c.kind === 'business').map((c) => (
+                    <option value={c.slug}>{c.fa}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label for="biz-zone" class="block text-sm font-medium text-ink-700">
+                  منطقه <span class="text-accent-600">*</span>
+                </label>
+                <select
+                  id="biz-zone"
+                  name="zone"
+                  required
+                  class="mt-2 w-full rounded-xl border border-ink-200 bg-surface px-4 py-2.5 outline-none transition-colors focus:border-brand-400"
+                >
+                  {zones.map((z) => <option value={z.slug}>{z.fa}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label for="biz-hood" class="block text-sm font-medium text-ink-700">
+                محله <span class="text-accent-600">*</span>
+              </label>
+              <select
+                id="biz-hood"
+                name="neighborhood"
+                required
+                class="mt-2 w-full rounded-xl border border-ink-200 bg-surface px-4 py-2.5 outline-none transition-colors focus:border-brand-400"
+              >
+                {neighborhoods.map((n) => <option value={n.slug}>{n.fa}</option>)}
+              </select>
+            </div>
+
+            <div>
+              <label for="biz-addr" class="block text-sm font-medium text-ink-700">
+                آدرس کامل <span class="text-accent-600">*</span>
+              </label>
+              <textarea
+                id="biz-addr"
+                name="address"
+                rows="3"
+                required
+                class="mt-2 w-full resize-y rounded-xl border border-ink-200 bg-surface px-4 py-2.5 leading-8 outline-none transition-colors focus:border-brand-400"
+              ></textarea>
+            </div>
+
+            <div class="grid gap-5 sm:grid-cols-2">
+              <div>
+                <label for="biz-phone" class="block text-sm font-medium text-ink-700">
+                  تلفن <span class="text-accent-600">*</span>
+                </label>
+                <input
+                  id="biz-phone"
+                  name="phone"
+                  type="tel"
+                  required
+                  dir="ltr"
+                  placeholder="021-12345678"
+                  class="mt-2 w-full rounded-xl border border-ink-200 bg-surface px-4 py-2.5 text-start outline-none transition-colors placeholder:text-ink-400 focus:border-brand-400"
+                />
+              </div>
+
+              <div>
+                <label for="biz-email" class="block text-sm font-medium text-ink-700">
+                  ایمیل
+                </label>
+                <input
+                  id="biz-email"
+                  name="email"
+                  type="email"
+                  dir="ltr"
+                  class="mt-2 w-full rounded-xl border border-ink-200 bg-surface px-4 py-2.5 text-start outline-none transition-colors focus:border-brand-400"
+                />
+              </div>
+            </div>
+
+            <label
+              class="flex cursor-pointer items-center gap-3 rounded-xl border border-ink-200 bg-surface-sunken p-4"
+            >
+              <input
+                type="checkbox"
+                name="is24h"
+                class="size-4 accent-brand-700"
+              />
+              <span class="text-sm text-ink-700">
+                این مرکز شبانه‌روزی است
+              </span>
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            class="mt-7 w-full rounded-pill bg-brand-700 px-6 py-3 font-semibold text-white transition-colors hover:bg-brand-800"
+          >
+            ارسال برای بررسی
+          </button>
+
+          <p class="mt-4 text-xs text-ink-500">
+            ⚠️ این فرم هنوز به بک‌اند وصل نشده است (فاز ۵).
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</Base>

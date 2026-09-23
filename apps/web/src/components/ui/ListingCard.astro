@@ -1,0 +1,127 @@
+---
+import type { Listing } from '../../lib/listings';
+import { url, getCategory } from '../../lib/taxonomy';
+import { categoryStyle } from '../../lib/theme';
+import { faNum } from '../../lib/format';
+import CategoryIcon from './CategoryIcon.astro';
+import Stars from './Stars.astro';
+
+interface Props {
+  listing: Listing;
+}
+const { listing: l } = Astro.props;
+const cat = getCategory(l.category);
+---
+
+<article
+  style={categoryStyle(l.category)}
+  class="group flex h-full flex-col overflow-hidden rounded-card border border-ink-200 bg-surface shadow-soft transition-all hover:-translate-y-1 hover:border-brand-300 hover:shadow-lift"
+>
+  {/* تصویر — وقتی مرکز عکس ندارد، پس‌زمینه‌ی رنگی دسته با آیکون درشت
+      جایگزین می‌شود تا کارت هیچ‌وقت خالی دیده نشود. */}
+  <div class="relative aspect-[16/9] overflow-hidden" style="background: var(--cat-bg);">
+    {
+      l.photo ? (
+        <img
+          src={l.photo}
+          alt={`تصویر ${l.name}`}
+          width="400"
+          height="225"
+          loading="lazy"
+          decoding="async"
+          class="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <span
+          class="grid size-full place-items-center opacity-35"
+          style="color: var(--cat-fg);"
+          aria-hidden="true"
+        >
+          <CategoryIcon slug={l.category} size={56} />
+        </span>
+      )
+    }
+
+    {
+      l.is24h && (
+        <span
+          class="absolute top-3 rounded-pill bg-accent-500 px-3 py-1 text-xs font-bold text-accent-950 shadow-soft"
+          style="inset-inline-start: 0.75rem;"
+        >
+          شبانه‌روزی
+        </span>
+      )
+    }
+  </div>
+
+  <div class="flex flex-1 flex-col p-5">
+    <div class="flex items-start justify-between gap-3">
+      <h3 class="font-bold text-ink-900">
+        <a href={url.clinic(l.city, l.slug)} class="hover:text-brand-700">
+          {l.name}
+          {/* کل کارت قابل کلیک شود بدون تودرتو شدن لینک‌ها */}
+          <span class="absolute inset-0" aria-hidden="true"></span>
+        </a>
+      </h3>
+
+      {
+        cat && (
+          <span
+            class="shrink-0 rounded-pill px-2.5 py-1 text-[0.7rem] font-semibold"
+            style="background: var(--cat-bg); color: var(--cat-fg);"
+          >
+            {cat.fa}
+          </span>
+        )
+      }
+    </div>
+
+    {
+      l.rating !== undefined && l.reviewCount !== undefined && l.reviewCount > 0 && (
+        <div class="mt-2.5 flex items-center gap-2">
+          <Stars value={l.rating} />
+          <span class="text-xs text-ink-500">
+            {faNum(l.rating)} ({faNum(l.reviewCount)} نظر)
+          </span>
+        </div>
+      )
+    }
+
+    <p class="mt-3 flex-1 text-sm leading-7 text-ink-600">{l.address}</p>
+
+    <div class="mt-4 flex items-center justify-between gap-3 border-t border-ink-100 pt-4">
+      {
+        /* ⚠️ بدون این شرط، مرکزِ بدون تلفن یک چیپ خالی رندر می‌کرد و
+           لینک tel:null می‌ساخت. بیش از نیم داده‌ی OSM تلفن ندارد. */
+        l.phone ? (
+          <a
+            href={`tel:${l.phone.replace(/\s/g, '')}`}
+            dir="ltr"
+            class="relative z-10 rounded-pill bg-brand-50 px-3.5 py-1.5 text-xs font-bold text-brand-800 transition-colors hover:bg-brand-100"
+          >
+            {l.phone}
+          </a>
+        ) : (
+          <span class="text-xs text-ink-400">شماره ثبت نشده</span>
+        )
+      }
+
+      {
+        l.openNow !== undefined && (
+          <span
+            class:list={[
+              'flex items-center gap-1.5 text-xs font-semibold',
+              l.openNow ? 'text-brand-700' : 'text-ink-400',
+            ]}
+          >
+            <span
+              class:list={['size-2 rounded-full', l.openNow ? 'bg-brand-500' : 'bg-ink-300']}
+              aria-hidden="true"
+            />
+            {l.openNow ? 'باز است' : 'بسته است'}
+          </span>
+        )
+      }
+    </div>
+  </div>
+</article>

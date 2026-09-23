@@ -1,0 +1,454 @@
+{
+  "$comment": "منبع حقیقت تاکسونومی موپت. فاز ۲ از این فایل سید می‌شود. تغییر slug بعد از انتشار = نیاز به ۳۰۱.",
+  "version": 1,
+  "config": {
+    "minListingsForPage": 3,
+    "reservedAreaSlugs": [
+      "north",
+      "south",
+      "east",
+      "west",
+      "center"
+    ],
+    "maxUrlSegments": 3
+  },
+  "categories": [
+    {
+      "slug": "vet",
+      "fa": "دامپزشکی",
+      "faPlural": "دامپزشکی‌ها",
+      "kind": "business",
+      "priority": 1,
+      "opportunity": "head-term-unclaimed"
+    },
+    {
+      "slug": "vet-24h",
+      "fa": "دامپزشکی شبانه‌روزی",
+      "faPlural": "دامپزشکی‌های شبانه‌روزی",
+      "kind": "business",
+      "priority": 1,
+      "opportunity": "high-intent-unclaimed"
+    },
+    {
+      "slug": "pet-shop",
+      "fa": "پت شاپ",
+      "faPlural": "پت شاپ‌ها",
+      "kind": "business",
+      "priority": 1,
+      "opportunity": null
+    },
+    {
+      "slug": "pet-grooming",
+      "fa": "آرایشگاه سگ و گربه",
+      "faPlural": "آرایشگاه‌های سگ و گربه",
+      "kind": "business",
+      "priority": 2,
+      "opportunity": null
+    },
+    {
+      "slug": "pet-boarding",
+      "fa": "پانسیون و هتل حیوانات",
+      "faPlural": "پانسیون‌های حیوانات",
+      "kind": "business",
+      "priority": 2,
+      "opportunity": null
+    },
+    {
+      "slug": "dog-training",
+      "fa": "تربیت سگ",
+      "faPlural": "مربیان تربیت سگ",
+      "kind": "business",
+      "priority": 3,
+      "opportunity": null
+    },
+    {
+      "slug": "vet-pharmacy",
+      "fa": "داروخانه دامپزشکی",
+      "faPlural": "داروخانه‌های دامپزشکی",
+      "kind": "business",
+      "priority": 3,
+      "opportunity": "category-unclaimed"
+    },
+    {
+      "slug": "pet-transport",
+      "fa": "حمل و نقل حیوانات",
+      "faPlural": "خدمات حمل حیوانات",
+      "kind": "business",
+      "priority": 4,
+      "opportunity": null
+    },
+    {
+      "slug": "pet-photography",
+      "fa": "آتلیه عکاسی حیوانات",
+      "faPlural": "آتلیه‌های عکاسی حیوانات",
+      "kind": "business",
+      "priority": 4,
+      "opportunity": null
+    },
+    {
+      "slug": "vaccination",
+      "fa": "واکسیناسیون و چک‌آپ",
+      "faPlural": "مراکز واکسیناسیون",
+      "kind": "service",
+      "priority": 2,
+      "opportunity": null
+    },
+    {
+      "slug": "pet-surgery",
+      "fa": "جراحی حیوانات",
+      "faPlural": "مراکز جراحی حیوانات",
+      "kind": "service",
+      "priority": 2,
+      "opportunity": null
+    },
+    {
+      "slug": "pet-dentistry",
+      "fa": "دندانپزشکی حیوانات",
+      "faPlural": "مراکز دندانپزشکی حیوانات",
+      "kind": "service",
+      "priority": 3,
+      "opportunity": null
+    },
+    {
+      "slug": "pet-imaging",
+      "fa": "سونوگرافی و رادیولوژی حیوانات",
+      "faPlural": "مراکز تصویربرداری حیوانات",
+      "kind": "service",
+      "priority": 3,
+      "opportunity": null
+    },
+    {
+      "slug": "vet-lab",
+      "fa": "آزمایشگاه تشخیص دامپزشکی",
+      "faPlural": "آزمایشگاه‌های دامپزشکی",
+      "kind": "service",
+      "priority": 3,
+      "opportunity": null
+    },
+    {
+      "slug": "microchip",
+      "fa": "کاشت میکروچیپ",
+      "faPlural": "مراکز کاشت میکروچیپ",
+      "kind": "service",
+      "priority": 4,
+      "opportunity": null
+    }
+  ],
+  "cities": [
+    {
+      "slug": "tehran",
+      "fa": "تهران",
+      "province": "تهران",
+      "phase": 1
+    }
+  ],
+  "zones": [
+    {
+      "slug": "north",
+      "fa": "شمال تهران",
+      "city": "tehran"
+    },
+    {
+      "slug": "south",
+      "fa": "جنوب تهران",
+      "city": "tehran"
+    },
+    {
+      "slug": "east",
+      "fa": "شرق تهران",
+      "city": "tehran"
+    },
+    {
+      "slug": "west",
+      "fa": "غرب تهران",
+      "city": "tehran"
+    },
+    {
+      "slug": "center",
+      "fa": "مرکز تهران",
+      "city": "tehran"
+    }
+  ],
+  "neighborhoods": [
+    {
+      "slug": "niavaran",
+      "fa": "نیاوران",
+      "faAlt": "نیاوران",
+      "zone": "north",
+      "district": 1,
+      "lat": 35.81606,
+      "lng": 51.47095
+    },
+    {
+      "slug": "tajrish",
+      "fa": "تجریش",
+      "faAlt": "تجریش",
+      "zone": "north",
+      "district": 1,
+      "lat": 35.80494,
+      "lng": 51.44096
+    },
+    {
+      "slug": "zaferanieh",
+      "fa": "زعفرانیه",
+      "faAlt": "زعفرانیه",
+      "zone": "north",
+      "district": 1,
+      "lat": 35.80768,
+      "lng": 51.41638
+    },
+    {
+      "slug": "elahieh",
+      "fa": "الهیه",
+      "faAlt": "الهیه",
+      "zone": "north",
+      "district": 1,
+      "lat": 35.78986,
+      "lng": 51.4262
+    },
+    {
+      "slug": "farmanieh",
+      "fa": "فرمانیه",
+      "faAlt": "فرمانیه",
+      "zone": "north",
+      "district": 1,
+      "lat": 35.80768,
+      "lng": 51.44575
+    },
+    {
+      "slug": "gheytarieh",
+      "fa": "قیطریه",
+      "faAlt": "قیطریه",
+      "zone": "north",
+      "district": 1,
+      "lat": 35.79136,
+      "lng": 51.44269
+    },
+    {
+      "slug": "pasdaran",
+      "fa": "پاسداران",
+      "faAlt": "پاسداران",
+      "zone": "north",
+      "district": 3,
+      "lat": 35.77969,
+      "lng": 51.46734
+    },
+    {
+      "slug": "saadat-abad",
+      "fa": "سعادت‌آباد",
+      "faAlt": "سعادت آباد",
+      "zone": "west",
+      "district": 2,
+      "lat": 35.77062,
+      "lng": 51.37848
+    },
+    {
+      "slug": "shahrak-gharb",
+      "fa": "شهرک غرب",
+      "faAlt": "شهرک غرب",
+      "zone": "west",
+      "district": 2,
+      "lat": 35.75906,
+      "lng": 51.37604
+    },
+    {
+      "slug": "punak",
+      "fa": "پونک",
+      "faAlt": "پونک",
+      "zone": "west",
+      "district": 5,
+      "lat": 35.76754,
+      "lng": 51.33039
+    },
+    {
+      "slug": "janat-abad",
+      "fa": "جنت‌آباد",
+      "faAlt": "جنت آباد",
+      "zone": "west",
+      "district": 5,
+      "lat": 35.75299,
+      "lng": 51.30367
+    },
+    {
+      "slug": "ashrafi-esfahani",
+      "fa": "اشرفی اصفهانی",
+      "faAlt": "اشرفی اصفهانی",
+      "zone": "west",
+      "district": 5,
+      "lat": 35.735,
+      "lng": 51.31
+    },
+    {
+      "slug": "sattarkhan",
+      "fa": "ستارخان",
+      "faAlt": "ستارخان",
+      "zone": "west",
+      "district": 2,
+      "lat": 35.72469,
+      "lng": 51.3585
+    },
+    {
+      "slug": "sadeghieh",
+      "fa": "صادقیه",
+      "faAlt": "صادقیه",
+      "zone": "west",
+      "district": 5,
+      "lat": 35.71785,
+      "lng": 51.33116
+    },
+    {
+      "slug": "marzdaran",
+      "fa": "مرزداران",
+      "faAlt": "مرزداران",
+      "zone": "west",
+      "district": 2,
+      "lat": 35.73442,
+      "lng": 51.35947
+    },
+    {
+      "slug": "tehranpars",
+      "fa": "تهرانپارس",
+      "faAlt": "تهران پارس",
+      "zone": "east",
+      "district": 4,
+      "lat": 35.73088,
+      "lng": 51.53184
+    },
+    {
+      "slug": "narmak",
+      "fa": "نارمک",
+      "faAlt": "نارمک",
+      "zone": "east",
+      "district": 8,
+      "lat": 35.73637,
+      "lng": 51.50419
+    },
+    {
+      "slug": "resalat",
+      "fa": "رسالت",
+      "faAlt": "رسالت",
+      "zone": "east",
+      "district": 4,
+      "lat": 35.72388,
+      "lng": 51.46677
+    },
+    {
+      "slug": "piroozi",
+      "fa": "پیروزی",
+      "faAlt": "پیروزی",
+      "zone": "east",
+      "district": 13,
+      "lat": 35.691,
+      "lng": 51.46786
+    },
+    {
+      "slug": "afsarieh",
+      "fa": "افسریه",
+      "faAlt": "افسریه",
+      "zone": "east",
+      "district": 15,
+      "lat": 35.64749,
+      "lng": 51.48552
+    },
+    {
+      "slug": "yaft-abad",
+      "fa": "یافت‌آباد",
+      "faAlt": "یافت آباد",
+      "zone": "south",
+      "district": 18,
+      "lat": 35.66124,
+      "lng": 51.34216
+    },
+    {
+      "slug": "nazi-abad",
+      "fa": "نازی‌آباد",
+      "faAlt": "نازی آباد",
+      "zone": "south",
+      "district": 16,
+      "lat": 35.647,
+      "lng": 51.386
+    },
+    {
+      "slug": "shahr-e-rey",
+      "fa": "شهرری",
+      "faAlt": "شهر ری",
+      "zone": "south",
+      "district": 20,
+      "lat": 35.59494,
+      "lng": 51.4223
+    },
+    {
+      "slug": "javadieh",
+      "fa": "جوادیه",
+      "faAlt": "جوادیه",
+      "zone": "south",
+      "district": 16,
+      "lat": 35.65941,
+      "lng": 51.38781
+    },
+    {
+      "slug": "vanak",
+      "fa": "ونک",
+      "faAlt": "ونک",
+      "zone": "center",
+      "district": 3,
+      "lat": 35.76466,
+      "lng": 51.40586
+    },
+    {
+      "slug": "yousef-abad",
+      "fa": "یوسف‌آباد",
+      "faAlt": "یوسف آباد",
+      "zone": "center",
+      "district": 6,
+      "lat": 35.72751,
+      "lng": 51.40927
+    },
+    {
+      "slug": "gisha",
+      "fa": "گیشا",
+      "faAlt": "گیشا",
+      "zone": "center",
+      "district": 2,
+      "lat": 35.73692,
+      "lng": 51.37706
+    },
+    {
+      "slug": "enghelab",
+      "fa": "انقلاب",
+      "faAlt": "انقلاب",
+      "zone": "center",
+      "district": 6,
+      "lat": 35.7006,
+      "lng": 51.3914
+    },
+    {
+      "slug": "amirabad",
+      "fa": "امیرآباد",
+      "faAlt": "امیر آباد",
+      "zone": "center",
+      "district": 6,
+      "lat": 35.70213,
+      "lng": 51.39101
+    }
+  ],
+  "indexRules": {
+    "indexable": [
+      "/",
+      "/[category]/",
+      "/[category]/tehran/",
+      "/[category]/tehran/[zone]/",
+      "/[category]/tehran/[neighborhood]/",
+      "/clinic/[city]/[slug]/",
+      "/blog/[slug]/"
+    ],
+    "noindex": [
+      "/search*",
+      "/panel/*",
+      "/auth/*",
+      "*?sort=*",
+      "*?open=*",
+      "*?page=*"
+    ]
+  }
+}

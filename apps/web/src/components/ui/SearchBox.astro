@@ -1,0 +1,54 @@
+---
+interface Props {
+  value?: string;
+  placeholder?: string;
+  compact?: boolean;
+}
+
+const {
+  value = '',
+  placeholder = 'مثلاً: دامپزشکی سعادت آباد',
+  compact = false,
+} = Astro.props;
+---
+
+{/* ⚠️ اسلش پایانی الزامی است — trailingSlash: 'always' در astro.config
+    باعث می‌شود /search بدون اسلش ۴۰۴ بدهد. */}
+<form action="/search/" method="get" role="search">
+  <label for="q" class="sr-only">جست‌وجوی خدمات حیوانات خانگی</label>
+
+  <div
+    class={`flex items-center gap-2 rounded-pill border border-ink-200 bg-surface shadow-soft transition-shadow focus-within:border-brand-400 focus-within:shadow-lift ${
+      compact ? 'p-1.5' : 'p-2'
+    }`}
+  >
+    <span class="ps-3 text-ink-400" aria-hidden="true">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"></circle>
+        <path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+        ></path>
+      </svg>
+    </span>
+
+    <input
+      id="q"
+      name="q"
+      type="search"
+      value={value}
+      placeholder={placeholder}
+      autocomplete="off"
+      class={`min-w-0 flex-1 bg-transparent text-ink-800 outline-none placeholder:text-ink-400 ${
+        compact ? 'py-2' : 'py-2.5'
+      }`}
+    />
+
+    <button
+      type="submit"
+      class={`shrink-0 rounded-pill bg-brand-700 font-semibold text-white transition-colors hover:bg-brand-800 ${
+        compact ? 'px-4 py-2 text-sm' : 'px-6 py-2.5'
+      }`}
+    >
+      جست‌وجو
+    </button>
+  </div>
+</form>

@@ -1,0 +1,182 @@
+@import 'tailwindcss';
+
+/* ==================================================================
+   فونت وزیرمتن — self-host
+   CDN استفاده نمی‌شود: DNS + TLS اضافه قبل از رندر متن به LCP ضربه می‌زند.
+   font-display: swap تضمین می‌کند هرگز متن نامرئی نداشته باشیم.
+================================================================== */
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Vazirmatn';
+  src: url('/fonts/Vazirmatn-ExtraBold.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ==================================================================
+   سیستم طراحی موپت
+   ------------------------------------------------------------------
+   پالت با OKLCH تعریف شده تا روشنایی ادراکی در همه‌ی رنگ‌ها یکسان
+   بماند — یعنی brand-500 و accent-500 واقعاً هم‌وزن دیده می‌شوند.
+
+   انتخاب رنگ عمدی است و از آبی/فیروزه‌ای کلیشه‌ای فاصله می‌گیرد:
+     brand  = خزه‌ای عمیق  → اعتماد، سلامت، طبیعت (حس دامپزشکی)
+     accent = زردآلویی گرم → بازیگوشی و گرمای حیوان خانگی (فقط CTA)
+     ink    = خاکستری گرم  → خنثای سرد کلینیکی نیست
+     surface= کرم روشن     → سفید خالص خسته‌کننده و بیمارستانی است
+================================================================== */
+@theme {
+  --font-sans: 'Vazirmatn', system-ui, 'Segoe UI', Tahoma, sans-serif;
+
+  /* ---- brand: خزه‌ای ---- */
+  --color-brand-50: oklch(97.5% 0.015 165);
+  --color-brand-100: oklch(94.5% 0.032 165);
+  --color-brand-200: oklch(89% 0.058 165);
+  --color-brand-300: oklch(81% 0.082 164);
+  --color-brand-400: oklch(70.5% 0.102 163);
+  --color-brand-500: oklch(60% 0.106 163);
+  --color-brand-600: oklch(51% 0.096 163);
+  --color-brand-700: oklch(43% 0.08 163);
+  --color-brand-800: oklch(36% 0.064 164);
+  --color-brand-900: oklch(30% 0.05 165);
+  --color-brand-950: oklch(21% 0.038 166);
+
+  /* ---- accent: زردآلویی ---- */
+  --color-accent-50: oklch(97% 0.022 60);
+  --color-accent-100: oklch(94% 0.048 57);
+  --color-accent-200: oklch(89% 0.082 53);
+  --color-accent-300: oklch(83% 0.112 50);
+  --color-accent-400: oklch(77% 0.138 46);
+  --color-accent-500: oklch(71% 0.158 42);
+  --color-accent-600: oklch(63% 0.156 38);
+  --color-accent-700: oklch(54% 0.142 35);
+  --color-accent-800: oklch(45% 0.116 34);
+  --color-accent-900: oklch(38% 0.094 34);
+
+  /* ---- ink: خاکستری گرم ---- */
+  --color-ink-50: oklch(98.5% 0.004 85);
+  --color-ink-100: oklch(96.5% 0.006 85);
+  --color-ink-200: oklch(92% 0.008 85);
+  --color-ink-300: oklch(86% 0.009 85);
+  --color-ink-400: oklch(70% 0.011 85);
+  --color-ink-500: oklch(58% 0.012 85);
+  --color-ink-600: oklch(47% 0.012 85);
+  --color-ink-700: oklch(39% 0.011 85);
+  --color-ink-800: oklch(28% 0.009 85);
+  --color-ink-900: oklch(21% 0.007 85);
+  --color-ink-950: oklch(14% 0.006 85);
+
+  /* ---- سطوح ---- */
+  --color-surface: oklch(99.2% 0.004 85);
+  --color-surface-sunken: oklch(97.4% 0.008 80);
+
+  /* ---- گردی گوشه ---- */
+  --radius-card: 1rem;
+  --radius-pill: 999px;
+
+  /* ---- سایه: نرم و گرم، نه خاکستری خالص ---- */
+  --shadow-soft: 0 1px 2px oklch(30% 0.02 85 / 0.04), 0 4px 12px oklch(30% 0.02 85 / 0.05);
+  --shadow-lift: 0 2px 4px oklch(30% 0.02 85 / 0.05), 0 12px 28px oklch(30% 0.02 85 / 0.09);
+}
+
+/* ==================================================================
+   پایه
+================================================================== */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* هدر چسبان ۴rem است — لنگر بدون این زیر هدر می‌افتد */
+    scroll-padding-top: 5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink-800);
+    /* متن فارسی به ارتفاع خط بیشتری نیاز دارد */
+    line-height: 1.85;
+    text-align: start;
+  }
+
+  /* عنوان‌ها فشرده‌تر از متن بدنه — تراز بصری بهتر در فارسی */
+  h1,
+  h2,
+  h3,
+  h4 {
+    line-height: 1.45;
+    text-wrap: balance;
+    color: var(--color-ink-900);
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* حلقه‌ی فوکوس یکسان در کل سایت — الزام دسترس‌پذیری */
+  :where(a, button, input, select, textarea, summary):focus-visible {
+    outline: 2px solid var(--color-brand-600);
+    outline-offset: 2px;
+    border-radius: 0.375rem;
+  }
+
+  /* فارسی: اعداد و نشانه‌گذاری در فیلدها از راست */
+  input,
+  textarea,
+  select {
+    text-align: start;
+  }
+}
+
+/* ==================================================================
+   ابزارهای اختصاصی
+================================================================== */
+@utility container-page {
+  margin-inline: auto;
+  max-width: 72rem;
+  padding-inline: 1rem;
+}
+
+/* پس‌زمینه‌ی نقطه‌چین ظریف برای بخش هیرو */
+@utility bg-dotted {
+  background-image: radial-gradient(
+    var(--color-brand-200) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+}
+
+/* ==================================================================
+   GSAP — حالت اولیه
+   ------------------------------------------------------------------
+   ⚠️ قانون حیاتی: حالت اولیه‌ی انیمیشن اینجا (CSS) تعریف نمی‌شود.
+   اگر `opacity: 0` در CSS بگذاریم و جاوااسکریپت لود نشود یا خطا بدهد،
+   محتوا برای همیشه نامرئی می‌ماند و گوگل صفحه‌ی خالی ایندکس می‌کند.
+   حالت اولیه با gsap.set() در scripts/animations.ts ست می‌شود —
+   یعنی بدون JS همه‌چیز عادی دیده می‌شود.
+================================================================== */

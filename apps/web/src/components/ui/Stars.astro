@@ -1,0 +1,45 @@
+---
+import { faNum } from '../../lib/format';
+
+interface Props {
+  /** ۰ تا ۵ */
+  value: number;
+  size?: number;
+}
+const { value, size = 15 } = Astro.props;
+
+const pct = Math.max(0, Math.min(100, (value / 5) * 100));
+---
+
+{/* ستاره‌ها بصری‌اند؛ مقدار عددی برای صفحه‌خوان در aria-label می‌آید. */}
+<span
+  class="relative inline-block shrink-0 align-middle"
+  role="img"
+  aria-label={`امتیاز ${faNum(value)} از ۵`}
+  style={`--s:${size}px`}
+>
+  <span class="flex gap-0.5 text-ink-200" aria-hidden="true">
+    {
+      [0, 1, 2, 3, 4].map(() => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9L12 2.5Z" />
+        </svg>
+      ))
+    }
+  </span>
+
+  {/* لایه‌ی پرشده با کلیپ درصدی — از انتهای منطقی (راست در RTL) */}
+  <span
+    class="absolute inset-0 flex gap-0.5 overflow-hidden text-accent-500"
+    style={`clip-path: inset(0 0 0 ${100 - pct}%);`}
+    aria-hidden="true"
+  >
+    {
+      [0, 1, 2, 3, 4].map(() => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2.5l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.4l1.1-6.5L2.6 9.3l6.5-.9L12 2.5Z" />
+        </svg>
+      ))
+    }
+  </span>
+</span>

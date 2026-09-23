@@ -1,0 +1,70 @@
+---
+import { SITE, absoluteUrl, pageTitle } from '../../lib/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** اگر داده نشود از مسیر فعلی ساخته می‌شود */
+  canonical?: string;
+  noindex?: boolean;
+  ogType?: 'website' | 'article';
+  ogImage?: string;
+}
+
+const {
+  title,
+  description = SITE.description,
+  canonical,
+  noindex = false,
+  ogType = 'website',
+  ogImage,
+} = Astro.props;
+
+const fullTitle = pageTitle(title);
+
+/**
+ * canonical همیشه از مسیر واقعی ساخته می‌شود، نه از Astro.url.href،
+ * چون در dev پورت localhost داخلش می‌افتد.
+ */
+const canonicalUrl = canonical ?? absoluteUrl(Astro.url.pathname);
+/** کاور اختصاصی صفحه، وگرنه کاور پیش‌فرض سایت */
+const ogImageUrl = new URL(ogImage ?? '/og-default.png', SITE.url).href;
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+
+{/* ⚠️ canonical روی هر صفحه — petlink این را ندارد و دچار کانیبالیزیشن است */}
+<link rel="canonical" href={canonicalUrl} />
+
+{
+  noindex ? (
+    <meta name="robots" content="noindex, follow" />
+  ) : (
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+  )
+}
+
+{/* Open Graph */}
+<meta property="og:site_name" content={SITE.name} />
+<meta property="og:locale" content={SITE.locale} />
+<meta property="og:type" content={ogType} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonicalUrl} />
+<meta property="og:image" content={ogImageUrl} />
+
+{/* Twitter */}
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={fullTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={ogImageUrl} />
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="generator" content={Astro.generator} />

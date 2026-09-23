@@ -1,0 +1,46 @@
+---
+/**
+ * آیکون هر دسته — inline SVG.
+ * inline است نه فایل، چون آیکون‌ها کوچک‌اند و یک درخواست شبکه‌ی اضافه
+ * برای هرکدام به LCP ضربه می‌زند.
+ */
+interface Props {
+  slug: string;
+  size?: number;
+}
+const { slug, size = 22 } = Astro.props;
+
+const paths: Record<string, string> = {
+  vet: 'M12 21s-7-4.6-7-9.6A4.4 4.4 0 0 1 12 8a4.4 4.4 0 0 1 7 3.4c0 5-7 9.6-7 9.6Z M12 11v4 M10 13h4',
+  'vet-24h': 'M12 21a9 9 0 1 0-9-9 9 9 0 0 0 9 9Z M12 7v5l3 2',
+  'pet-shop': 'M5 8h14l-1 12H6L5 8Z M9 8V6a3 3 0 0 1 6 0v2',
+  'pet-grooming': 'M6 4v9a3 3 0 0 0 6 0V4 M18 4v7 M18 13v7 M9 16v4',
+  'pet-boarding': 'M4 11 12 4l8 7v9H4v-9Z M10 20v-5h4v5',
+  'dog-training': 'M4 18h10a4 4 0 0 0 0-8H9 M9 6l-3 4 3 4 M18 15l3 3-3 3',
+  'vet-pharmacy': 'M12 6v12 M6 12h12 M5 5h14v14H5Z',
+  'pet-transport': 'M3 16V9h11v7 M14 11h4l3 3v2h-7 M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z M17.5 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z',
+  'pet-photography': 'M4 8h3l1.5-2h7L17 8h3v11H4V8Z M12 16a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4Z',
+  vaccination: 'm17 3 4 4 M19 5l-9 9-3 5 5-3 9-9-2-2Z M12 9l3 3',
+  'pet-surgery': 'M6 4v7a3 3 0 0 0 6 0V4 M9 14v6 M18 4l-6 9 2 2 6-9V4h-2Z',
+  'pet-dentistry': 'M7 4c-2 0-3 1.6-3 4 0 4 1.5 12 3.5 12S9 15 12 15s2.5 5 4.5 5S20 12 20 8c0-2.4-1-4-3-4-1.6 0-2.6 1-5 1s-3.4-1-5-1Z',
+  'pet-imaging': 'M4 5h16v14H4Z M8 9h8 M8 13h5 M16 15.5v.01',
+  'vet-lab': 'M9 3v7l-4 8a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-4-8V3 M8 3h8 M7 15h10',
+  microchip: 'M8 8h8v8H8Z M5 10V8h3 M19 10V8h-3 M5 16v-2h3 M19 16v-2h-3 M10 5H8v3 M14 5h2v3 M10 19H8v-3 M14 19h2v-3',
+};
+
+const d = paths[slug] ?? paths.vet;
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.7"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+>
+  {d.split(' M').map((seg, i) => <path d={i === 0 ? seg : `M${seg}`} />)}
+</svg>

@@ -1,0 +1,51 @@
+---
+import CategoryIcon from './CategoryIcon.astro';
+import { categoryStyle } from '../../lib/theme';
+import { url } from '../../lib/taxonomy';
+import type { Category } from '../../lib/taxonomy';
+
+interface Props {
+  category: Category;
+  href?: string;
+  /** متن زیر عنوان — مثلاً تعداد مراکز */
+  meta?: string;
+  size?: 'md' | 'lg';
+}
+
+const { category, href, meta, size = 'md' } = Astro.props;
+const to = href ?? url.category(category.slug);
+---
+
+<a
+  href={to}
+  style={categoryStyle(category.slug)}
+  class:list={[
+    'group relative flex h-full flex-col overflow-hidden rounded-card border border-ink-200 bg-surface transition-all hover:-translate-y-1 hover:border-transparent hover:shadow-lift',
+    size === 'lg' ? 'p-6' : 'p-5',
+  ]}
+>
+  {/* لکه‌ی رنگی گوشه — عمق بصری بدون نیاز به عکس */}
+  <span
+    class="pointer-events-none absolute -top-10 size-28 rounded-full opacity-70 transition-all duration-300 group-hover:scale-150 group-hover:opacity-100"
+    style="background: var(--cat-bg); inset-inline-start: -2.5rem;"
+    aria-hidden="true"></span>
+
+  <span
+    class="relative grid place-items-center rounded-2xl transition-colors duration-300"
+    style="background: var(--cat-bg); color: var(--cat-fg); width: 3.25rem; height: 3.25rem;"
+  >
+    <CategoryIcon slug={category.slug} size={size === 'lg' ? 26 : 23} />
+  </span>
+
+  <span class="relative mt-4 font-bold text-ink-900">{category.fa}</span>
+
+  {meta && <span class="relative mt-1 text-xs text-ink-500">{meta}</span>}
+
+  <span
+    class="relative mt-auto pt-4 text-xs font-semibold opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+    style="color: var(--cat-fg);"
+    aria-hidden="true"
+  >
+    مشاهده ←
+  </span>
+</a>

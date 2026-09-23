@@ -1,0 +1,119 @@
+---
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/seo/Breadcrumbs.astro';
+import SectionHead from '../../components/ui/SectionHead.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import { categories, neighborhoods, zones } from '../../lib/taxonomy';
+
+const values = [
+  {
+    t: 'اطلاعات درست، نه زیاد',
+    d: 'ترجیح می‌دهیم صد مرکز با اطلاعات دقیق داشته باشیم تا هزار مرکز با شماره‌ی خاموش. هر مرکز پیش از انتشار بررسی می‌شود.',
+  },
+  {
+    t: 'محله‌محور',
+    d: 'وقتی حیوان شما حالش بد است، «دامپزشکی تهران» به کارتان نمی‌آید. شما دامپزشکِ همین محله را می‌خواهید.',
+  },
+  {
+    t: 'بدون آگهی گمراه‌کننده',
+    d: 'مراکز ویژه با برچسب مشخص نمایش داده می‌شوند. هیچ‌وقت آگهی را جای نتیجه‌ی واقعی جا نمی‌زنیم.',
+  },
+  {
+    t: 'رایگان برای صاحبان حیوانات',
+    d: 'جست‌وجو، مشاهده‌ی اطلاعات تماس و خواندن نظرات همیشه رایگان است و نیازی به ثبت‌نام ندارد.',
+  },
+];
+
+const stats = [
+  { v: categories.length, l: 'دسته خدمات' },
+  { v: zones.length, l: 'منطقه‌ی تهران' },
+  { v: neighborhoods.length, l: 'محله' },
+];
+---
+
+<Base
+  title="درباره موپت"
+  description="موپت بانک اطلاعات خدمات حیوانات خانگی در تهران است. هدف ما این است که پیدا کردن دامپزشک، پت شاپ و آرایشگاه حیوانات در محله‌ی خودتان ساده شود."
+>
+  <PageHero
+    title="درباره موپت"
+    subtitle="ما یک دایرکتوری ساده می‌سازیم تا پیدا کردن خدمات حیوانات خانگی وقت‌تان را نگیرد."
+  >
+    <Breadcrumbs
+      items={[
+        { name: 'موپت', href: '/' },
+        { name: 'درباره ما', href: '/about/' },
+      ]}
+    />
+  </PageHero>
+
+  <div class="container-page py-16">
+    <div class="mx-auto max-w-3xl">
+      <div class="space-y-5 leading-9 text-ink-600">
+        <p>
+          موپت از یک تجربه‌ی شخصی شروع شد: نیمه‌شب، یک گربه‌ی بیمار، و نیم ساعت
+          جست‌وجو برای پیدا کردن دامپزشکی که هم باز باشد و هم نزدیک. نتایج
+          جست‌وجو پر بود از صفحاتی که شماره‌شان جواب نمی‌داد یا اصلاً در آن محله
+          نبودند.
+        </p>
+        <p>
+          تصمیم گرفتیم چیزی بسازیم که آن شب لازم داشتیم: فهرستی دسته‌بندی‌شده از
+          مراکز خدمات حیوانات خانگی، تا سطح محله، با اطلاعات تماسی که واقعاً کار
+          می‌کند.
+        </p>
+      </div>
+
+      <dl class="mt-12 grid grid-cols-3 gap-4" data-anim="up" data-anim-stagger="0.25">
+        {
+          stats.map((s) => (
+            <div class="rounded-card border border-ink-200 bg-surface p-6 text-center shadow-soft">
+              <dt class="sr-only">{s.l}</dt>
+              <dd>
+                <span class="block text-3xl font-extrabold text-brand-700">
+                  {s.v}
+                </span>
+                <span class="mt-1 block text-sm text-ink-500">{s.l}</span>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </div>
+
+  <section aria-labelledby="values" class="border-y border-ink-200 bg-surface-sunken">
+    <div class="container-page py-16">
+      <div class="mx-auto max-w-3xl">
+        <SectionHead id="values" title="اصول ما" />
+        <div class="mt-10 grid gap-5 sm:grid-cols-2" data-anim="up" data-anim-stagger="0.25">
+          {
+            values.map((v) => (
+              <div class="rounded-card border border-ink-200 bg-surface p-7 shadow-soft">
+                <h3 class="font-bold text-ink-900">{v.t}</h3>
+                <p class="mt-3 text-sm leading-8 text-ink-600">{v.d}</p>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page py-16">
+    <div
+      class="mx-auto max-w-3xl rounded-card bg-brand-800 px-8 py-12 text-center"
+      data-anim="scale"
+    >
+      <h2 class="text-2xl font-extrabold text-white">مرکز شما در موپت نیست؟</h2>
+      <p class="mx-auto mt-3 max-w-lg text-brand-100">
+        ثبت کسب‌وکار رایگان است و بعد از بررسی کارشناسان منتشر می‌شود.
+      </p>
+      <a
+        href="/panel/register-business/"
+        class="mt-7 inline-block rounded-pill bg-accent-500 px-7 py-3 font-bold text-accent-950 transition-all hover:-translate-y-0.5 hover:bg-accent-400"
+      >
+        ثبت رایگان
+      </a>
+    </div>
+  </section>
+</Base>

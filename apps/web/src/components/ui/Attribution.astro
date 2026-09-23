@@ -1,0 +1,24 @@
+---
+import { ATTRIBUTION } from '../../lib/listings';
+
+/**
+ * ⚠️ الزام حقوقی، نه تزئین.
+ * مجوز ODbL داده‌ی OpenStreetMap ایجاب می‌کند منبع در هر صفحه‌ای که
+ * داده را نمایش می‌دهد ذکر شود. حذف این کامپوننت یعنی نقض مجوز.
+ */
+---
+
+<p class="mt-10 text-xs text-ink-500">
+  بخشی از اطلاعات مراکز از {ATTRIBUTION.text} گرفته شده است —
+  <a
+    href={ATTRIBUTION.url}
+    rel="nofollow noopener"
+    target="_blank"
+    class="underline underline-offset-2 hover:text-brand-700"
+  >
+    مجوز {ATTRIBUTION.license}
+  </a>. اگر اطلاعاتی نادرست است،
+  <a href="/contact/" class="underline underline-offset-2 hover:text-brand-700">
+    به ما اطلاع دهید
+  </a>.
+</p>

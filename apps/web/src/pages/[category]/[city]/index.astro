@@ -1,0 +1,106 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../../layouts/Base.astro';
+import Breadcrumbs from '../../../components/seo/Breadcrumbs.astro';
+import PageHero from '../../../components/ui/PageHero.astro';
+import SectionHead from '../../../components/ui/SectionHead.astro';
+import ListingGrid from '../../../components/ui/ListingGrid.astro';
+import Reviews from '../../../components/ui/Reviews.astro';
+import Attribution from '../../../components/ui/Attribution.astro';
+import { categories, cities, zones, neighborhoods, url } from '../../../lib/taxonomy';
+import { getListings, shouldIndex } from '../../../lib/listings';
+import { getRecentReviews } from '../../../lib/reviews';
+import { faNum } from '../../../lib/format';
+
+export const getStaticPaths = (async () => {
+  const paths = [];
+  for (const c of categories) {
+    for (const city of cities) {
+      paths.push({
+        params: { category: c.slug, city: city.slug },
+        props: { category: c, city },
+      });
+    }
+  }
+  return paths;
+}) satisfies GetStaticPaths;
+
+const { category, city } = Astro.props;
+
+const listings = await getListings({ category: category.slug, city: city.slug });
+const indexable = shouldIndex(listings);
+const count = listings.length;
+
+const title = count
+  ? `${category.fa} ${city.fa} | ${faNum(count)} ${category.fa} با آدرس و تلفن`
+  : `${category.fa} ${city.fa} | لیست ${category.faPlural} در ${city.fa}`;
+
+const reviews = await getRecentReviews();
+
+const description = `لیست ${category.faPlural} در ${city.fa} با آدرس، شماره تماس، ساعت کاری و نظرات کاربران. نزدیک‌ترین مرکز به محله‌ی خود را در موپت پیدا کنید.`;
+---
+
+<Base title={title} description={description} noindex={!indexable}>
+  <PageHero
+    title={`${category.faPlural} در ${city.fa}`}
+    subtitle={count ? `${faNum(count)} مرکز ثبت‌شده` : undefined}
+  >
+    <Breadcrumbs
+      items={[
+        { name: 'موپت', href: '/' },
+        { name: category.fa, href: url.category(category.slug) },
+        { name: city.fa, href: url.categoryCity(category.slug, city.slug) },
+      ]}
+    />
+  </PageHero>
+
+  <div class="container-page py-14">
+    <ListingGrid listings={listings} categoryFa={category.fa} areaFa={city.fa} />
+
+    <Reviews reviews={reviews} subject={`${category.faPlural} ${city.fa}`} />
+
+    <section aria-labelledby="zones" class="mt-16 border-t border-ink-200 pt-12">
+      <SectionHead id="zones" title={`${category.fa} در مناطق ${city.fa}`} />
+      <ul
+        class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5"
+        data-anim="up"
+        data-anim-stagger="0.3"
+      >
+        {
+          zones
+            .filter((z) => z.city === city.slug)
+            .map((z) => (
+              <li>
+                <a
+                  href={url.categoryZone(category.slug, city.slug, z.slug)}
+                  class="block rounded-card border border-ink-200 bg-surface p-5 text-sm font-semibold text-ink-800 transition-all hover:-translate-y-1 hover:border-brand-300 hover:text-brand-800 hover:shadow-lift"
+                >
+                  {category.fa} {z.fa}
+                </a>
+              </li>
+            ))
+        }
+      </ul>
+    </section>
+
+    <section aria-labelledby="hoods" class="mt-14">
+      <h2 id="hoods" class="text-lg font-bold text-ink-900">محله‌ها</h2>
+      <ul class="mt-5 flex flex-wrap gap-2.5">
+        {
+          neighborhoods.map((n) => (
+            <li>
+              <a
+                href={url.categoryHood(category.slug, city.slug, n.slug)}
+                class="inline-block rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-600 transition-colors hover:border-brand-300 hover:text-brand-800"
+              >
+                {category.fa} {n.faAlt}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <Attribution />
+  </div>
+</Base>

@@ -1,0 +1,358 @@
+---
+import Base from '../layouts/Base.astro';
+import JsonLd from '../components/seo/JsonLd.astro';
+import SearchBox from '../components/ui/SearchBox.astro';
+import SectionHead from '../components/ui/SectionHead.astro';
+import CategoryTile from '../components/ui/CategoryTile.astro';
+import HeroArt from '../components/ui/HeroArt.astro';
+import { SITE } from '../lib/site';
+import { faNum } from '../lib/format';
+import {
+  categoriesByPriority,
+  primaryCategories,
+  zones,
+  neighborhoods,
+  url,
+} from '../lib/taxonomy';
+
+const allCategories = categoriesByPriority();
+const topCategories = primaryCategories();
+const city = SITE.defaultCity;
+const hubCategories = topCategories.slice(0, 4);
+
+const featuredHoods = neighborhoods.filter((n) =>
+  [
+    'saadat-abad', 'tehranpars', 'punak', 'niavaran',
+    'vanak', 'narmak', 'shahrak-gharb', 'sadeghieh',
+  ].includes(n.slug),
+);
+
+const stats = [
+  { v: faNum(allCategories.length), l: 'دسته خدمات' },
+  { v: faNum(neighborhoods.length), l: 'محله‌ی تهران' },
+  { v: faNum(zones.length), l: 'منطقه' },
+  { v: '۲۴/۷', l: 'مراکز شبانه‌روزی' },
+];
+
+const steps = [
+  { n: '۱', t: 'دسته را انتخاب کنید', d: 'دامپزشکی، پت شاپ، آرایشگاه، پانسیون و ۱۱ خدمت دیگر.' },
+  { n: '۲', t: 'محله‌تان را بزنید', d: 'از شمال تا جنوب تهران، تا سطح محله.' },
+  { n: '۳', t: 'تماس بگیرید', d: 'آدرس دقیق، شماره تماس و ساعت کاری هر مرکز.' },
+];
+
+const itemListSchema = {
+  '@type': 'ItemList',
+  name: 'دسته‌های خدمات حیوانات خانگی',
+  itemListElement: allCategories.map((c, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: c.fa,
+    url: new URL(url.category(c.slug), SITE.url).href,
+  })),
+};
+
+const faqs = [
+  {
+    q: 'چطور نزدیک‌ترین دامپزشکی به خودم را پیدا کنم؟',
+    a: 'دسته‌ی دامپزشکی را انتخاب کنید و سپس محله یا منطقه‌ی خود را بزنید. لیست مراکز به همراه آدرس، شماره تماس و ساعت کاری نمایش داده می‌شود.',
+  },
+  {
+    q: 'آیا دامپزشکی شبانه‌روزی هم در موپت هست؟',
+    a: 'بله. دسته‌ی جداگانه‌ی دامپزشکی شبانه‌روزی برای مواقع اورژانسی وجود دارد که فقط مراکز ۲۴ ساعته را نشان می‌دهد.',
+  },
+  {
+    q: 'ثبت کسب‌وکار در موپت هزینه دارد؟',
+    a: 'ثبت اولیه‌ی مرکز رایگان است. پس از تأیید کارشناسان، پروفایل شما در نتایج جست‌وجوی محله‌تان نمایش داده می‌شود.',
+  },
+  {
+    q: 'اطلاعات مراکز چقدر به‌روز است؟',
+    a: 'اطلاعات هر مرکز توسط صاحب کسب‌وکار یا کارشناسان موپت بررسی و به‌روزرسانی می‌شود. اگر موردی نادرست بود می‌توانید گزارش دهید.',
+  },
+];
+
+const faqSchema = {
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
+---
+
+<Base
+  title="دامپزشکی، پت شاپ و خدمات حیوانات خانگی در تهران"
+  description={SITE.description}
+  canonical={SITE.url + '/'}
+>
+  <JsonLd data={[itemListSchema, faqSchema]} />
+
+  {/* ══════════ هیرو ══════════
+      ⚠️ قانون ۲: این بخش شامل المان LCP است و هیچ انیمیشنی ندارد.
+      تیتر و جعبه‌ی جست‌وجو از لحظه‌ی اول سر جای نهایی‌شان هستند. */}
+  <section class="relative overflow-hidden bg-brand-50/60">
+    <div class="bg-dotted absolute inset-0 opacity-45" aria-hidden="true"></div>
+    <div
+      class="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-surface to-transparent"
+      aria-hidden="true"
+    >
+    </div>
+
+    <div class="container-page relative py-14 sm:py-20">
+      <div class="grid items-center gap-12 lg:grid-cols-12">
+        <!-- متن -->
+        <div class="lg:col-span-6">
+          <p
+            class="inline-flex items-center gap-2 rounded-pill border border-brand-200 bg-surface px-4 py-1.5 text-sm text-brand-800"
+          >
+            <span class="size-2 rounded-full bg-accent-500" aria-hidden="true"></span>
+            {faNum(allCategories.length)} دسته خدمات در تهران
+          </p>
+
+          {/* ⚠️ یک خط نوشته شده: شکستن خط باعث حذف فاصله‌ی بین span و متن می‌شود */}
+          <h1 class="mt-6 text-[2rem] font-extrabold text-ink-900 sm:text-5xl">خدمات حیوانات خانگی را <span class="text-brand-700">نزدیک خانه‌تان</span> پیدا کنید</h1>
+
+          <p class="mt-6 max-w-xl text-base text-ink-600 sm:text-lg">
+            دامپزشکی، پت شاپ، آرایشگاه و پانسیون — با آدرس دقیق، شماره تماس و
+            ساعت کاری.
+          </p>
+
+          <div class="mt-8 max-w-lg">
+            <SearchBox />
+          </div>
+
+          <ul class="mt-6 flex flex-wrap gap-2">
+            {
+              topCategories.slice(0, 4).map((c) => (
+                <li>
+                  <a
+                    href={url.categoryCity(c.slug, city)}
+                    class="inline-block rounded-pill border border-ink-200 bg-surface px-4 py-2 text-sm text-ink-600 shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-800"
+                  >
+                    {c.fa} تهران
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <!-- ایلاستریشن -->
+        <div class="lg:col-span-6">
+          <HeroArt />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* ══════════ نوار آمار ══════════ */}
+  <section aria-label="آمار موپت" class="border-b border-ink-200 bg-surface">
+    <div class="container-page">
+      <dl class="grid grid-cols-2 divide-ink-200 sm:grid-cols-4 sm:divide-x sm:divide-x-reverse">
+        {
+          stats.map((s) => (
+            <div class="px-4 py-7 text-center">
+              <dd class="text-2xl font-extrabold text-brand-700 sm:text-3xl">{s.v}</dd>
+              <dt class="mt-1 text-xs text-ink-500 sm:text-sm">{s.l}</dt>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  {/* ══════════ دسته‌ها ══════════ */}
+  <section aria-labelledby="cats" class="container-page py-20">
+    <SectionHead
+      id="cats"
+      title="دنبال چه خدمتی هستید؟"
+      subtitle={`${faNum(allCategories.length)} دسته خدمات برای سگ، گربه، پرنده و سایر حیوانات خانگی`}
+    />
+
+    <ul
+      class="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5"
+      data-anim="up"
+      data-anim-stagger="0.4"
+    >
+      {
+        allCategories.map((c) => (
+          <li>
+            <CategoryTile category={c} />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  {/* ══════════ چطور کار می‌کند ══════════ */}
+  <section aria-labelledby="how" class="border-y border-ink-200 bg-surface-sunken">
+    <div class="container-page py-20">
+      <SectionHead id="how" title="در سه قدم" subtitle="بدون ثبت‌نام، بدون هزینه" />
+
+      <ol
+        class="mt-10 grid gap-5 md:grid-cols-3"
+        data-anim="up"
+        data-anim-stagger="0.25"
+      >
+        {
+          steps.map((s) => (
+            <li class="rounded-card border border-ink-200 bg-surface p-7 shadow-soft">
+              <span class="grid size-11 place-items-center rounded-xl bg-accent-100 text-lg font-extrabold text-accent-800">
+                {s.n}
+              </span>
+              <h3 class="mt-4 text-lg font-bold">{s.t}</h3>
+              <p class="mt-2 text-sm leading-8 text-ink-600">{s.d}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  {/* ══════════ هاب لینک‌سازی داخلی ══════════
+      قلب سئوی صفحه‌ی اصلی: اعتبار را به صفحات دسته×مکان پاس می‌دهد. */}
+  <section aria-labelledby="areas" class="container-page py-20">
+    <SectionHead
+      id="areas"
+      title="جست‌وجو بر اساس منطقه‌ی تهران"
+      subtitle="خدمات پرتقاضا را در شمال، جنوب، شرق، غرب و مرکز تهران ببینید"
+    />
+
+    <div
+      class="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4"
+      data-anim="up"
+      data-anim-stagger="0.3"
+    >
+      {
+        hubCategories.map((c) => (
+          <nav aria-labelledby={`hub-${c.slug}`}>
+            <h3
+              id={`hub-${c.slug}`}
+              class="border-b border-ink-200 pb-3 font-bold text-ink-900"
+            >
+              {c.fa}
+            </h3>
+            <ul class="mt-4 space-y-2.5 text-sm">
+              {zones.map((z) => (
+                <li>
+                  <a
+                    href={url.categoryZone(c.slug, city, z.slug)}
+                    class="text-ink-600 transition-colors hover:text-brand-700"
+                  >
+                    {c.fa} {z.fa}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))
+      }
+    </div>
+  </section>
+
+  {/* ══════════ محله‌های پرتقاضا ══════════ */}
+  <section aria-labelledby="hoods" class="border-y border-ink-200 bg-surface-sunken">
+    <div class="container-page py-20">
+      <SectionHead
+        id="hoods"
+        title="دامپزشکی در محله‌های پرتقاضا"
+        subtitle="پرجست‌وجوترین محله‌های تهران"
+      />
+      <ul class="mt-8 flex flex-wrap gap-2.5" data-anim="up" data-anim-stagger="0.4">
+        {
+          featuredHoods.map((n) => (
+            <li>
+              <a
+                href={url.categoryHood('vet', city, n.slug)}
+                class="inline-block rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-600 transition-all hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-800 hover:shadow-soft"
+              >
+                دامپزشکی {n.faAlt}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  {/* ══════════ CTA ثبت کسب‌وکار ══════════ */}
+  <section class="container-page py-20">
+    <div
+      class="overflow-hidden rounded-card bg-brand-800 px-8 py-14 text-center sm:px-14"
+      data-anim="scale"
+    >
+      <h2 class="text-2xl font-extrabold text-white sm:text-3xl">
+        صاحب کسب‌وکار حوزه پت هستید؟
+      </h2>
+      <p class="mx-auto mt-4 max-w-xl text-brand-100">
+        مرکز خود را رایگان ثبت کنید تا در جست‌وجوی محله‌تان دیده شوید.
+      </p>
+      <a
+        href="/panel/register-business/"
+        class="mt-8 inline-block rounded-pill bg-accent-500 px-8 py-3.5 font-bold text-accent-950 shadow-lift transition-all hover:-translate-y-0.5 hover:bg-accent-400"
+      >
+        ثبت رایگان کسب‌وکار
+      </a>
+    </div>
+  </section>
+
+  {/* ══════════ محتوا + پرسش‌ها ══════════ */}
+  <section class="border-t border-ink-200 bg-surface-sunken">
+    <div class="container-page py-20">
+      <div class="mx-auto max-w-3xl">
+        <h2 class="text-2xl font-extrabold sm:text-3xl">موپت چیست؟</h2>
+        <div class="mt-5 space-y-4 leading-9 text-ink-600">
+          <p>
+            پیدا کردن یک دامپزشک خوب یا پت شاپ معتبر در تهران کار ساده‌ای نیست.
+            موپت این مسیر را کوتاه می‌کند: کافی است دسته‌ی خدمت و محله‌ی خود را
+            انتخاب کنید تا فهرست مراکز نزدیک با آدرس دقیق، شماره تماس، ساعت کاری
+            و خدمات قابل ارائه را ببینید.
+          </p>
+          {/* ⚠️ فاصله‌های اطراف <a> با {' '} صریح نوشته شده‌اند.
+              اگر لینک در خط جدا باشد، Astro فاصله را حذف می‌کند و
+              کلمات به هم می‌چسبند: «دسته‌یدامپزشکی شبانه‌روزیفقط» */}
+          <p>
+            برای مواقع اورژانسی، دسته‌ی{' '}
+            <a
+              href={url.category('vet-24h')}
+              class="font-semibold text-brand-700 underline-offset-4 hover:underline"
+            >
+              دامپزشکی شبانه‌روزی
+            </a>{' '}
+            فقط مراکزی را نشان می‌دهد که ۲۴ ساعته پذیرش دارند — چیزی که در
+            نیمه‌شب می‌تواند جان حیوان شما را نجات دهد.
+          </p>
+        </div>
+
+        <h2 id="faq" class="mt-14 text-2xl font-extrabold sm:text-3xl">
+          سوال‌های پرتکرار
+        </h2>
+        <div class="mt-6 space-y-3" data-anim="up" data-anim-stagger="0.35">
+          {
+            faqs.map((f) => (
+              <details class="group rounded-card border border-ink-200 bg-surface px-6 open:shadow-soft">
+                <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-5 font-bold text-ink-900">
+                  {f.q}
+                  <span
+                    class="shrink-0 text-brand-600 transition-transform group-open:rotate-45"
+                    aria-hidden="true"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                      <path
+                        d="M12 5v14M5 12h14"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+                  </span>
+                </summary>
+                <p class="pb-6 leading-9 text-ink-600">{f.a}</p>
+              </details>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>

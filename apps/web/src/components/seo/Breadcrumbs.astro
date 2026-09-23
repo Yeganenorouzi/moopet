@@ -1,0 +1,51 @@
+---
+import { absoluteUrl } from '../../lib/site';
+import JsonLd from './JsonLd.astro';
+
+export interface Crumb {
+  name: string;
+  href: string;
+}
+
+interface Props {
+  items: Crumb[];
+}
+
+const { items } = Astro.props;
+
+/**
+ * breadcrumb هم بصری است هم structured data.
+ * چون اسلاگ‌ها انگلیسی‌اند، این تنها جایی است که گوگل سلسله‌مراتب
+ * فارسی را می‌بیند — پس هم نقش سئویی دارد هم UX.
+ */
+const jsonLd = {
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: item.name,
+    item: absoluteUrl(item.href),
+  })),
+};
+---
+
+<JsonLd data={jsonLd} />
+
+<nav aria-label="مسیر صفحه" class="text-sm text-slate-500">
+  <ol class="flex flex-wrap items-center gap-x-2 gap-y-1">
+    {
+      items.map((item, i) => (
+        <li class="flex items-center gap-x-2">
+          {i > 0 && <span aria-hidden="true" class="text-slate-300">›</span>}
+          {i === items.length - 1 ? (
+            <span aria-current="page" class="text-slate-700">{item.name}</span>
+          ) : (
+            <a href={item.href} class="hover:text-teal-700 hover:underline">
+              {item.name}
+            </a>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>

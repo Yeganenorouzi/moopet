@@ -1,0 +1,114 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import Breadcrumbs from '../../components/seo/Breadcrumbs.astro';
+import PageHero from '../../components/ui/PageHero.astro';
+import SectionHead from '../../components/ui/SectionHead.astro';
+import CategoryIcon from '../../components/ui/CategoryIcon.astro';
+import CategoryTile from '../../components/ui/CategoryTile.astro';
+import { SITE } from '../../lib/site';
+import { categories, zones, neighborhoods, url } from '../../lib/taxonomy';
+
+export const getStaticPaths = (async () => {
+  const { categories: cats } = await import('../../lib/taxonomy');
+  return cats.map((c) => ({
+    params: { category: c.slug },
+    props: { category: c },
+  }));
+}) satisfies GetStaticPaths;
+
+const { category } = Astro.props;
+const city = SITE.defaultCity;
+
+// هاب دسته است، نه لیست — همیشه ایندکس می‌شود.
+const title = `${category.fa} | لیست ${category.faPlural} در تهران`;
+const description = `${category.faPlural} در تهران را بر اساس محله پیدا کنید. آدرس، شماره تماس، ساعت کاری و خدمات هر مرکز در موپت.`;
+---
+
+<Base title={title} description={description}>
+  <PageHero
+    title={`${category.faPlural} در تهران`}
+    subtitle={`برای دیدن ${category.fa}‌های نزدیک خودتان، منطقه یا محله‌ی مورد نظر را انتخاب کنید.`}
+  >
+    <Breadcrumbs
+      items={[
+        { name: 'موپت', href: '/' },
+        { name: category.fa, href: url.category(category.slug) },
+      ]}
+    />
+  </PageHero>
+
+  <div class="container-page py-16">
+    <!-- مناطق -->
+    <section aria-labelledby="zones">
+      <SectionHead id="zones" title={`${category.fa} به تفکیک منطقه`} />
+      <ul
+        class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5"
+        data-anim="up"
+        data-anim-stagger="0.3"
+      >
+        {
+          zones.map((z) => (
+            <li>
+              <a
+                href={url.categoryZone(category.slug, city, z.slug)}
+                class="group flex h-full flex-col gap-3 rounded-card border border-ink-200 bg-surface p-5 transition-all hover:-translate-y-1 hover:border-brand-300 hover:shadow-lift"
+              >
+                <span class="grid size-10 place-items-center rounded-xl bg-brand-50 text-brand-700 transition-colors group-hover:bg-brand-700 group-hover:text-white">
+                  <CategoryIcon slug={category.slug} size={20} />
+                </span>
+                <span class="text-sm font-semibold text-ink-800 group-hover:text-brand-800">
+                  {category.fa} {z.fa}
+                </span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <!-- محله‌ها -->
+    <section aria-labelledby="hoods" class="mt-16">
+      <SectionHead
+        id="hoods"
+        title="محله‌ها"
+        subtitle={`${neighborhoods.length} محله‌ی تهران`}
+      />
+      <ul class="mt-8 flex flex-wrap gap-2.5" data-anim="up" data-anim-stagger="0.4">
+        {
+          neighborhoods.map((n) => (
+            <li>
+              <a
+                href={url.categoryHood(category.slug, city, n.slug)}
+                class="inline-block rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-600 transition-all hover:-translate-y-0.5 hover:border-brand-300 hover:text-brand-800 hover:shadow-soft"
+              >
+                {category.fa} {n.faAlt}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <!-- سایر دسته‌ها — با کارت رنگی، نه چیپ خاکستری -->
+    <section aria-labelledby="others" class="mt-16 border-t border-ink-200 pt-12">
+      <SectionHead id="others" title="سایر خدمات حیوانات خانگی" />
+      <ul
+        class="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5"
+        data-anim="up"
+        data-anim-stagger="0.3"
+      >
+        {
+          categories
+            .filter((c) => c.slug !== category.slug)
+            .slice(0, 10)
+            .map((c) => (
+              <li>
+                <CategoryTile category={c} />
+              </li>
+            ))
+        }
+      </ul>
+    </section>
+  </div>
+</Base>
