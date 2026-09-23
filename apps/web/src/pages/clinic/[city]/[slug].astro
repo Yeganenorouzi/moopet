@@ -1,0 +1,362 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../../layouts/Base.astro';
+import Breadcrumbs from '../../../components/seo/Breadcrumbs.astro';
+import JsonLd from '../../../components/seo/JsonLd.astro';
+import CategoryIcon from '../../../components/ui/CategoryIcon.astro';
+import ListingCard from '../../../components/ui/ListingCard.astro';
+import Reviews from '../../../components/ui/Reviews.astro';
+import Attribution from '../../../components/ui/Attribution.astro';
+import { SITE, absoluteUrl } from '../../../lib/site';
+import { categoryStyle } from '../../../lib/theme';
+import { faNum } from '../../../lib/format';
+import { formatHoursFa, hoursSchema, isAlways } from '../../../lib/hours';
+import {
+  allListings,
+  getListings,
+  type Listing,
+} from '../../../lib/listings';
+import { getReviews } from '../../../lib/reviews';
+import { getCategory, getNeighborhood, getZone, url } from '../../../lib/taxonomy';
+
+export const getStaticPaths = (async () => {
+  return allListings().map((l) => ({
+    params: { city: l.city, slug: l.slug },
+    props: { listing: l },
+  }));
+}) satisfies GetStaticPaths;
+
+const { listing } = Astro.props as { listing: Listing };
+const l = listing;
+
+const cat = getCategory(l.category)!;
+const hood = l.neighborhood ? getNeighborhood(l.neighborhood) : null;
+const zone = hood ? getZone(hood.zone) : null;
+
+const hours = formatHoursFa(l.openingHours);
+const always = isAlways(l.openingHours);
+
+const reviews = await getReviews(l.id);
+
+/** مراکز مشابه در همان محله — لینک‌سازی داخلی و ارزش برای کاربر */
+const nearby = (
+  await getListings({
+    category: l.category,
+    city: l.city,
+    area: hood?.slug,
+  })
+)
+  .filter((x) => x.slug !== l.slug)
+  .slice(0, 3);
+
+const areaFa = hood?.fa ?? SITE.defaultCityFa;
+const title = `${l.name} | ${cat.fa} ${areaFa}`;
+const description = `${l.name} — ${cat.fa} در ${areaFa}. ${
+  l.phone ? 'شماره تماس، ' : ''
+}آدرس${hours ? '، ساعت کاری' : ''} و مسیر دسترسی در موپت.`;
+
+/**
+ * LocalBusiness — دقیق‌ترین نوع برای هر دسته.
+ * VeterinaryCare زیرشاخه‌ی رسمی schema.org برای دامپزشکی است.
+ *
+ * ⚠️ aggregateRating عمداً نیامده: هنوز نظر واقعی نداریم و اسکیمای
+ * امتیاز جعلی پنالتی دستی گوگل دارد.
+ */
+const SCHEMA_TYPE: Record<string, string> = {
+  vet: 'VeterinaryCare',
+  'vet-24h': 'VeterinaryCare',
+  'pet-shop': 'PetStore',
+  'vet-pharmacy': 'Pharmacy',
+};
+
+const schema: Record<string, unknown> = {
+  '@type': SCHEMA_TYPE[l.category] ?? 'LocalBusiness',
+  '@id': absoluteUrl(url.clinic(l.city, l.slug)) + '#business',
+  name: l.name,
+  url: absoluteUrl(url.clinic(l.city, l.slug)),
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: l.address,
+    addressLocality: SITE.defaultCityFa,
+    addressRegion: 'تهران',
+    addressCountry: 'IR',
+  },
+};
+
+if (l.phone) schema.telephone = l.phone;
+if (l.website) schema.sameAs = [l.website];
+if (l.lat && l.lng) {
+  schema.geo = { '@type': 'GeoCoordinates', latitude: l.lat, longitude: l.lng };
+}
+const oh = hoursSchema(l.openingHours);
+if (oh) schema.openingHoursSpecification = oh;
+
+const mapUrl =
+  l.lat && l.lng ? `https://www.openstreetmap.org/?mlat=${l.lat}&mlon=${l.lng}#map=17/${l.lat}/${l.lng}` : null;
+const directionsUrl =
+  l.lat && l.lng ? `https://www.google.com/maps/dir/?api=1&destination=${l.lat},${l.lng}` : null;
+---
+
+<Base title={title} description={description}>
+  <JsonLd data={schema} />
+
+  <!-- ══════════ سربرگ ══════════ -->
+  <section
+    class="relative overflow-hidden border-b border-ink-200"
+    style={categoryStyle(l.category) + ';background: var(--cat-bg);'}
+  >
+    <div class="bg-dotted absolute inset-0 opacity-25" aria-hidden="true"></div>
+
+    <div class="container-page relative py-10 sm:py-14">
+      <Breadcrumbs
+        items={[
+          { name: 'موپت', href: '/' },
+          { name: cat.fa, href: url.category(cat.slug) },
+          { name: SITE.defaultCityFa, href: url.categoryCity(cat.slug, l.city) },
+          ...(hood
+            ? [{ name: hood.fa, href: url.categoryHood(cat.slug, l.city, hood.slug) }]
+            : []),
+          { name: l.name, href: url.clinic(l.city, l.slug) },
+        ]}
+      />
+
+      <div class="mt-6 flex flex-wrap items-start gap-5">
+        <span
+          class="grid size-16 shrink-0 place-items-center rounded-2xl bg-surface shadow-soft"
+          style="color: var(--cat-fg);"
+          aria-hidden="true"
+        >
+          <CategoryIcon slug={l.category} size={30} />
+        </span>
+
+        <div class="min-w-0 flex-1">
+          <h1 class="text-2xl font-extrabold text-ink-900 sm:text-3xl">{l.name}</h1>
+
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <a
+              href={url.category(cat.slug)}
+              class="rounded-pill bg-surface px-3 py-1.5 text-xs font-semibold shadow-soft"
+              style="color: var(--cat-fg);"
+            >
+              {cat.fa}
+            </a>
+
+            {
+              hood && (
+                <a
+                  href={url.categoryHood(cat.slug, l.city, hood.slug)}
+                  class="rounded-pill bg-surface px-3 py-1.5 text-xs font-medium text-ink-600 shadow-soft"
+                >
+                  {hood.fa}
+                </a>
+              )
+            }
+
+            {
+              always && (
+                <span class="rounded-pill bg-accent-500 px-3 py-1.5 text-xs font-bold text-accent-950">
+                  شبانه‌روزی
+                </span>
+              )
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="container-page py-12">
+    <div class="grid gap-8 lg:grid-cols-3">
+      <!-- ══════════ ستون اصلی ══════════ -->
+      <div class="lg:col-span-2">
+        <section aria-labelledby="info">
+          <h2 id="info" class="text-xl font-bold text-ink-900">اطلاعات تماس</h2>
+
+          <dl class="mt-5 divide-y divide-ink-100 rounded-card border border-ink-200 bg-surface">
+            <div class="flex gap-4 p-5">
+              <dt class="w-24 shrink-0 text-sm text-ink-500">آدرس</dt>
+              <dd class="flex-1 leading-8 text-ink-800">{l.address}</dd>
+            </div>
+
+            {
+              l.phone && (
+                <div class="flex gap-4 p-5">
+                  <dt class="w-24 shrink-0 text-sm text-ink-500">تلفن</dt>
+                  <dd class="flex-1">
+                    <a
+                      href={`tel:${l.phone.replace(/\s/g, '')}`}
+                      dir="ltr"
+                      class="font-bold text-brand-700 hover:underline"
+                      style="display:inline-block"
+                    >
+                      {l.phone}
+                    </a>
+                  </dd>
+                </div>
+              )
+            }
+
+            {
+              hours && (
+                <div class="flex gap-4 p-5">
+                  <dt class="w-24 shrink-0 text-sm text-ink-500">ساعت کاری</dt>
+                  <dd class="flex-1 space-y-1.5 text-ink-800">
+                    {hours.map((h) => (
+                      <p class="leading-7">{h}</p>
+                    ))}
+                  </dd>
+                </div>
+              )
+            }
+
+            {
+              l.website && (
+                <div class="flex gap-4 p-5">
+                  <dt class="w-24 shrink-0 text-sm text-ink-500">وب‌سایت</dt>
+                  <dd class="min-w-0 flex-1">
+                    <a
+                      href={l.website}
+                      rel="nofollow noopener"
+                      target="_blank"
+                      dir="ltr"
+                      class="block truncate text-brand-700 hover:underline"
+                      style="text-align:start"
+                    >
+                      {l.website}
+                    </a>
+                  </dd>
+                </div>
+              )
+            }
+          </dl>
+
+          {
+            !l.phone && (
+              /* صادقانه: نمی‌گوییم اطلاعات کامل است وقتی نیست */
+              <p class="mt-4 rounded-xl border border-accent-200 bg-accent-50 p-4 text-sm leading-7 text-accent-900">
+                شماره تماس این مرکز در دسترس نیست. اگر صاحب یا مشتری آن هستید،
+                <a href="/contact/" class="font-semibold underline underline-offset-2">
+                  اطلاعات را برای ما بفرستید
+                </a>
+                تا تکمیل شود.
+              </p>
+            )
+          }
+        </section>
+
+        <Reviews reviews={reviews} subject={l.name} listingId={l.id} />
+      </div>
+
+      <!-- ══════════ ستون کناری ══════════ -->
+      <aside class="lg:col-span-1">
+        <div class="lg:sticky lg:top-24">
+          {
+            mapUrl && (
+              <div class="overflow-hidden rounded-card border border-ink-200 bg-surface shadow-soft">
+                <div
+                  class="relative grid aspect-[4/3] place-items-center"
+                  style={categoryStyle(l.category) + ';background: var(--cat-bg);'}
+                >
+                  <div class="bg-dotted absolute inset-0 opacity-40" aria-hidden="true" />
+                  <span class="relative" style="color: var(--cat-fg);" aria-hidden="true">
+                    <svg width="46" height="46" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M12 2a7 7 0 0 0-7 7c0 5.3 6.2 12.5 6.5 12.8a.7.7 0 0 0 1 0C12.8 21.5 19 14.3 19 9a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z" />
+                    </svg>
+                  </span>
+                </div>
+
+                <div class="space-y-2 p-4">
+                  {directionsUrl && (
+                    <a
+                      href={directionsUrl}
+                      rel="nofollow noopener"
+                      target="_blank"
+                      class="block rounded-pill bg-brand-700 px-5 py-3 text-center text-sm font-bold text-white transition-colors hover:bg-brand-800"
+                    >
+                      مسیریابی
+                    </a>
+                  )}
+                  <a
+                    href={mapUrl}
+                    rel="nofollow noopener"
+                    target="_blank"
+                    class="block rounded-pill border border-ink-200 px-5 py-3 text-center text-sm font-semibold text-ink-700 transition-colors hover:border-brand-300 hover:text-brand-700"
+                  >
+                    دیدن روی نقشه
+                  </a>
+                </div>
+              </div>
+            )
+          }
+
+          <div class="mt-4 rounded-card border border-ink-200 bg-surface p-5 shadow-soft">
+            <h2 class="text-sm font-bold text-ink-900">صاحب این مرکز هستید؟</h2>
+            <p class="mt-2 text-sm leading-7 text-ink-600">
+              اطلاعات را اصلاح کنید، عکس اضافه کنید و پروفایل را کامل بگیرید.
+            </p>
+            <a
+              href="/panel/register-business/"
+              class="mt-4 inline-block rounded-pill border-2 border-brand-700 px-4 py-2 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-700 hover:text-white"
+            >
+              درخواست مالکیت
+            </a>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ══════════ مراکز مشابه ══════════ -->
+    {
+      nearby.length > 0 && (
+        <section aria-labelledby="nearby" class="mt-16 border-t border-ink-200 pt-12">
+          <h2 id="nearby" class="text-xl font-bold text-ink-900">
+            {cat.faPlural} دیگر در {areaFa}
+          </h2>
+          <ul
+            class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+            data-anim="up"
+            data-anim-stagger="0.3"
+          >
+            {nearby.map((n) => (
+              <li class="relative">
+                <ListingCard listing={n} />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <!-- ══════════ پیمایش ══════════ -->
+    <nav aria-label="پیمایش مرتبط" class="mt-12 flex flex-wrap gap-2.5">
+      {
+        hood && (
+          <a
+            href={url.categoryHood(cat.slug, l.city, hood.slug)}
+            class="rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-600 transition-colors hover:border-brand-300 hover:text-brand-800"
+          >
+            همه‌ی {cat.faPlural} {hood.fa}
+          </a>
+        )
+      }
+      {
+        zone && (
+          <a
+            href={url.categoryZone(cat.slug, l.city, zone.slug)}
+            class="rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-600 transition-colors hover:border-brand-300 hover:text-brand-800"
+          >
+            {cat.fa} {zone.fa}
+          </a>
+        )
+      }
+      <a
+        href={url.categoryCity(cat.slug, l.city)}
+        class="rounded-pill border border-ink-200 bg-surface px-4 py-2.5 text-sm text-ink-600 transition-colors hover:border-brand-300 hover:text-brand-800"
+      >
+        {cat.faPlural} تهران
+      </a>
+    </nav>
+
+    <Attribution />
+  </div>
+</Base>

@@ -17,7 +17,17 @@ export const SITE = {
   /** شهر فاز اول */
   defaultCity: 'tehran',
   defaultCityFa: 'تهران',
+
+  /**
+   * راه‌های ارتباط.
+   * ⚠️ تلفن عمداً وجود ندارد — شماره‌ای که جواب ندهد بدتر از نبودنش است.
+   */
+  email: 'hello@moopet.ir',
+  telegram: 'moopet',
 } as const;
+
+export const telegramUrl = `https://t.me/${SITE.telegram}`;
+export const mailtoUrl = `mailto:${SITE.email}`;
 
 /**
  * ساخت URL مطلق و نرمال‌شده برای canonical.

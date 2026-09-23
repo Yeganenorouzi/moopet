@@ -92,6 +92,74 @@ for (const r of osm.rows) {
   });
 }
 
+// ────────────────────────────────────────────────────────────────
+// حذف تکراری‌ها
+//
+// OSM گاهی یک کسب‌وکار را دو بار دارد (یک بار node، یک بار way؛ یا دو
+// مشارکت‌کننده‌ی مختلف). نتیجه‌اش هم برای کاربر بد است (یک کلینیک دو بار
+// در لیست) هم برای سئو (دو صفحه با عنوان یکسان = کانیبالیزیشن).
+//
+// معیار: نام یکسان (نرمال‌شده) + فاصله‌ی کمتر از ۳۰۰ متر.
+// رکوردی می‌ماند که داده‌ی بیشتری دارد.
+// ────────────────────────────────────────────────────────────────
+const normName = (s) =>
+  s
+    .replace(/[‌‏]/g, ' ')
+    .replace(/[يى]/g, 'ی')
+    .replace(/ك/g, 'ک')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+
+const richness = (l) =>
+  (l.phone ? 4 : 0) + (l.openingHours ? 2 : 0) + (l.website ? 1 : 0) +
+  (l.address && l.address !== 'تهران' ? 1 : 0);
+
+const kept = [];
+let merged = 0;
+
+for (const l of listings) {
+  const twin = kept.find(
+    (k) =>
+      k.category === l.category &&
+      normName(k.name) === normName(l.name) &&
+      haversineKm({ lat: k.lat, lng: k.lng }, { lat: l.lat, lng: l.lng }) < 0.3,
+  );
+
+  if (!twin) {
+    kept.push(l);
+    continue;
+  }
+
+  merged++;
+  // نگه داشتن غنی‌ترین نسخه، و پر کردن فیلدهای خالی از نسخه‌ی دیگر
+  const [win, lose] = richness(l) > richness(twin) ? [l, twin] : [twin, l];
+  win.phone ??= lose.phone;
+  win.openingHours ??= lose.openingHours;
+  win.website ??= lose.website;
+  if (win.address === 'تهران' && lose.address !== 'تهران') win.address = lose.address;
+  if (win !== twin) kept[kept.indexOf(twin)] = win;
+}
+
+console.log(`تکراری‌های ادغام‌شده: ${merged}`);
+listings.length = 0;
+listings.push(...kept);
+
+// ── رفع ابهام عنوان ──
+// اگر دو کسب‌وکارِ واقعاً متفاوت نام یکسانی در یک محله داشته باشند
+// (مثلاً دو شعبه‌ی یک برند)، عنوان صفحه باید تفکیک‌پذیر بماند.
+const seen = new Map();
+for (const l of listings) {
+  const key = `${l.category}|${l.neighborhood}|${normName(l.name)}`;
+  const n = (seen.get(key) ?? 0) + 1;
+  seen.set(key, n);
+  if (n > 1) {
+    // خیابان اگر داشت، وگرنه شماره‌ی شعبه
+    l.branch = l.address && l.address !== 'تهران' ? l.address : `شعبه ${n}`;
+  }
+}
+console.log('نیازمند رفع ابهام عنوان:', listings.filter((l) => l.branch).length);
+
 // ── آمار ──
 const byCat = {};
 const byHood = {};

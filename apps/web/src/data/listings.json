@@ -3,7 +3,7 @@
   "license": "ODbL",
   "attribution": "© مشارکت‌کنندگان OpenStreetMap",
   "attributionUrl": "https://www.openstreetmap.org/copyright",
-  "importedAt": "2026-09-23T11:25:51.300Z",
+  "importedAt": "2026-09-23T11:46:21.932Z",
   "listings": [
     {
       "id": "node/3133138844",
@@ -1485,20 +1485,20 @@
       "source": "osm"
     },
     {
-      "id": "node/11270915111",
-      "slug": "c-11270915111",
+      "id": "node/12121901704",
+      "slug": "c-12121901704",
       "name": "کلینیک دامپزشکی تریتا",
       "category": "vet",
       "services": [],
       "city": "tehran",
       "neighborhood": "vanak",
-      "address": "شیخ بهایی",
-      "phone": null,
+      "address": "ونک، تهران",
+      "phone": "02188621360",
       "is24h": false,
-      "openingHours": "10:00-22:00",
+      "openingHours": "09:00-21:00",
       "website": null,
-      "lat": 35.7658096,
-      "lng": 51.3946624,
+      "lat": 35.7680781,
+      "lng": 51.3946874,
       "source": "osm"
     },
     {
@@ -2077,23 +2077,6 @@
       "website": null,
       "lat": 35.7693723,
       "lng": 51.4461364,
-      "source": "osm"
-    },
-    {
-      "id": "node/12121901704",
-      "slug": "c-12121901704",
-      "name": "کلینیک دامپزشکی تریتا",
-      "category": "vet",
-      "services": [],
-      "city": "tehran",
-      "neighborhood": "vanak",
-      "address": "ونک، تهران",
-      "phone": "02188621360",
-      "is24h": false,
-      "openingHours": "09:00-21:00",
-      "website": null,
-      "lat": 35.7680781,
-      "lng": 51.3946874,
       "source": "osm"
     },
     {
@@ -3066,23 +3049,6 @@
       "source": "osm"
     },
     {
-      "id": "node/14107204110",
-      "slug": "c-14107204110",
-      "name": "پت شاپ انیمال کالا",
-      "category": "pet-shop",
-      "services": [],
-      "city": "tehran",
-      "neighborhood": "resalat",
-      "address": "بزرگراه شهید سلیمانی 12",
-      "phone": "09181101600",
-      "is24h": false,
-      "openingHours": "10:00-22:00",
-      "website": null,
-      "lat": 35.7389173,
-      "lng": 51.4776944,
-      "source": "osm"
-    },
-    {
       "id": "node/14169471710",
       "slug": "c-14169471710",
       "name": "ehsanvet کلینیک دامپزشکی احسان",
@@ -3301,23 +3267,6 @@
       "website": null,
       "lat": 35.7664039,
       "lng": 51.3047569,
-      "source": "osm"
-    },
-    {
-      "id": "way/1557826177",
-      "slug": "c-1557826177",
-      "name": "ehsanvet کلینیک دامپزشکی احسان",
-      "category": "vet",
-      "services": [],
-      "city": "tehran",
-      "neighborhood": "niavaran",
-      "address": "موحد دانش 37",
-      "phone": null,
-      "is24h": false,
-      "openingHours": "10:00 to 22:00",
-      "website": null,
-      "lat": 35.8010124,
-      "lng": 51.4818536,
       "source": "osm"
     }
   ]

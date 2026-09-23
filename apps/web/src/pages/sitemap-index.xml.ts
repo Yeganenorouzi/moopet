@@ -8,4 +8,8 @@ export const prerender = true;
  * مزیت: lastmod هر بخش مستقل است و گوگل فقط بخش تغییرکرده را دوباره می‌خزد.
  */
 export const GET: APIRoute = () =>
-  sitemapIndex(['/sitemap/pages.xml', '/sitemap/places.xml']);
+  sitemapIndex([
+    '/sitemap/pages.xml',
+    '/sitemap/places.xml',
+    '/sitemap/clinics.xml',
+  ]);

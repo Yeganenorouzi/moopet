@@ -3,7 +3,7 @@ import '../styles/global.css';
 import Seo from '../components/seo/Seo.astro';
 import JsonLd from '../components/seo/JsonLd.astro';
 import Logo from '../components/ui/Logo.astro';
-import { SITE } from '../lib/site';
+import { SITE, telegramUrl, mailtoUrl } from '../lib/site';
 import { shamsiYear } from '../lib/format';
 import { primaryCategories, categoriesByPriority, url } from '../lib/taxonomy';
 
@@ -162,6 +162,33 @@ const globalSchema = [
               بانک اطلاعات خدمات حیوانات خانگی — نزدیک‌ترین دامپزشکی، پت شاپ،
               آرایشگاه و پانسیون را با آدرس و تلفن پیدا کنید.
             </p>
+
+            <div class="mt-5 flex items-center gap-3">
+              <a
+                href={telegramUrl}
+                rel="noopener"
+                target="_blank"
+                class="inline-flex items-center gap-2 rounded-pill border border-ink-200 bg-surface px-4 py-2 text-sm font-medium text-ink-700 transition-colors hover:border-brand-300 hover:text-brand-700"
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path
+                    d="M21.9 4.3 18.7 19c-.24 1.07-.88 1.33-1.78.83l-4.92-3.63-2.37 2.28c-.26.26-.48.48-.99.48l.35-5.02 9.13-8.25c.4-.35-.09-.55-.62-.2L6.2 12.6 1.35 11.1c-1.05-.33-1.07-1.05.22-1.56L20.5 2.9c.88-.32 1.65.2 1.4 1.4Z"
+                  ></path>
+                </svg>
+                <span dir="ltr">@{SITE.telegram}</span>
+              </a>
+
+              <a
+                href={mailtoUrl}
+                aria-label={`ایمیل: ${SITE.email}`}
+                class="grid size-10 place-items-center rounded-full border border-ink-200 bg-surface text-ink-700 transition-colors hover:border-brand-300 hover:text-brand-700"
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <rect x="2.5" y="5" width="19" height="14" rx="2.5"></rect>
+                  <path d="m3.5 7 8.5 6 8.5-6" stroke-linecap="round"></path>
+                </svg>
+              </a>
+            </div>
           </div>
 
           <nav aria-labelledby="f-cat" class="lg:col-span-3">

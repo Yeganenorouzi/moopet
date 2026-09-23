@@ -3,20 +3,29 @@ import Base from '../../layouts/Base.astro';
 import Breadcrumbs from '../../components/seo/Breadcrumbs.astro';
 import PageHero from '../../components/ui/PageHero.astro';
 import JsonLd from '../../components/seo/JsonLd.astro';
-import { SITE } from '../../lib/site';
+import { SITE, telegramUrl, mailtoUrl } from '../../lib/site';
 
 const channels = [
   {
+    t: 'تلگرام',
+    d: 'سریع‌ترین راه — معمولاً همان روز پاسخ می‌دهیم',
+    v: `@${SITE.telegram}`,
+    href: telegramUrl,
+    external: true,
+  },
+  {
     t: 'ایمیل',
     d: 'برای همکاری، گزارش خطا یا اصلاح اطلاعات یک مرکز',
-    v: 'hello@moopet.ir',
-    href: 'mailto:hello@moopet.ir',
+    v: SITE.email,
+    href: mailtoUrl,
+    external: false,
   },
   {
     t: 'ثبت کسب‌وکار',
     d: 'اگر صاحب مرکز خدمات حیوانات هستید',
     v: 'فرم ثبت‌نام',
     href: '/panel/register-business/',
+    external: false,
   },
 ];
 
@@ -27,7 +36,8 @@ const schema = {
   mainEntity: {
     '@type': 'Organization',
     name: SITE.name,
-    email: 'hello@moopet.ir',
+    email: SITE.email,
+    sameAs: [telegramUrl],
   },
 };
 ---
@@ -59,11 +69,13 @@ const schema = {
             channels.map((c) => (
               <a
                 href={c.href}
+                rel={c.external ? 'noopener' : undefined}
+                target={c.external ? '_blank' : undefined}
                 class="block rounded-card border border-ink-200 bg-surface p-6 shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-lift"
               >
                 <h2 class="font-bold text-ink-900">{c.t}</h2>
                 <p class="mt-2 text-sm leading-7 text-ink-600">{c.d}</p>
-                <p class="mt-3 font-semibold text-brand-700">{c.v}</p>
+                <p class="mt-3 font-semibold text-brand-700" dir={c.external ? 'ltr' : undefined} style={c.external ? 'text-align:start' : undefined}>{c.v}</p>
               </a>
             ))
           }
