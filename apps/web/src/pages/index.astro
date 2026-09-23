@@ -7,6 +7,7 @@ import CategoryTile from '../components/ui/CategoryTile.astro';
 import HeroArt from '../components/ui/HeroArt.astro';
 import { SITE } from '../lib/site';
 import { faNum } from '../lib/format';
+import content from '../data/content.json';
 import {
   categoriesByPriority,
   primaryCategories,
@@ -34,11 +35,7 @@ const stats = [
   { v: '۲۴/۷', l: 'مراکز شبانه‌روزی' },
 ];
 
-const steps = [
-  { n: '۱', t: 'دسته را انتخاب کنید', d: 'دامپزشکی، پت شاپ، آرایشگاه، پانسیون و ۱۱ خدمت دیگر.' },
-  { n: '۲', t: 'محله‌تان را بزنید', d: 'از شمال تا جنوب تهران، تا سطح محله.' },
-  { n: '۳', t: 'تماس بگیرید', d: 'آدرس دقیق، شماره تماس و ساعت کاری هر مرکز.' },
-];
+const steps = content.home.steps;
 
 const itemListSchema = {
   '@type': 'ItemList',
@@ -51,24 +48,7 @@ const itemListSchema = {
   })),
 };
 
-const faqs = [
-  {
-    q: 'چطور نزدیک‌ترین دامپزشکی به خودم را پیدا کنم؟',
-    a: 'دسته‌ی دامپزشکی را انتخاب کنید و سپس محله یا منطقه‌ی خود را بزنید. لیست مراکز به همراه آدرس، شماره تماس و ساعت کاری نمایش داده می‌شود.',
-  },
-  {
-    q: 'آیا دامپزشکی شبانه‌روزی هم در موپت هست؟',
-    a: 'بله. دسته‌ی جداگانه‌ی دامپزشکی شبانه‌روزی برای مواقع اورژانسی وجود دارد که فقط مراکز ۲۴ ساعته را نشان می‌دهد.',
-  },
-  {
-    q: 'ثبت کسب‌وکار در موپت هزینه دارد؟',
-    a: 'ثبت اولیه‌ی مرکز رایگان است. پس از تأیید کارشناسان، پروفایل شما در نتایج جست‌وجوی محله‌تان نمایش داده می‌شود.',
-  },
-  {
-    q: 'اطلاعات مراکز چقدر به‌روز است؟',
-    a: 'اطلاعات هر مرکز توسط صاحب کسب‌وکار یا کارشناسان موپت بررسی و به‌روزرسانی می‌شود. اگر موردی نادرست بود می‌توانید گزارش دهید.',
-  },
-];
+const faqs = content.home.faq;
 
 const faqSchema = {
   '@type': 'FAQPage',
@@ -106,15 +86,14 @@ const faqSchema = {
             class="inline-flex items-center gap-2 rounded-pill border border-brand-200 bg-surface px-4 py-1.5 text-sm text-brand-800"
           >
             <span class="size-2 rounded-full bg-accent-500" aria-hidden="true"></span>
-            {faNum(allCategories.length)} دسته خدمات در تهران
+            {faNum(allCategories.length)} {content.home.badge}
           </p>
 
           {/* ⚠️ یک خط نوشته شده: شکستن خط باعث حذف فاصله‌ی بین span و متن می‌شود */}
-          <h1 class="mt-6 text-[2rem] font-extrabold text-ink-900 sm:text-5xl">خدمات حیوانات خانگی را <span class="text-brand-700">نزدیک خانه‌تان</span> پیدا کنید</h1>
+          <h1 class="mt-6 text-[2rem] font-extrabold text-ink-900 sm:text-5xl">{content.home.h1Before} <span class="text-brand-700">{content.home.h1Highlight}</span> {content.home.h1After}</h1>
 
           <p class="mt-6 max-w-xl text-base text-ink-600 sm:text-lg">
-            دامپزشکی، پت شاپ، آرایشگاه و پانسیون — با آدرس دقیق، شماره تماس و
-            ساعت کاری.
+            {content.home.lead}
           </p>
 
           <div class="mt-8 max-w-lg">
@@ -165,8 +144,8 @@ const faqSchema = {
   <section aria-labelledby="cats" class="container-page py-20">
     <SectionHead
       id="cats"
-      title="دنبال چه خدمتی هستید؟"
-      subtitle={`${faNum(allCategories.length)} دسته خدمات برای سگ، گربه، پرنده و سایر حیوانات خانگی`}
+      title={content.home.categoriesTitle}
+      subtitle={`${faNum(allCategories.length)} ${content.home.categoriesSubtitle}`}
     />
 
     <ul
@@ -187,7 +166,7 @@ const faqSchema = {
   {/* ══════════ چطور کار می‌کند ══════════ */}
   <section aria-labelledby="how" class="border-y border-ink-200 bg-surface-sunken">
     <div class="container-page py-20">
-      <SectionHead id="how" title="در سه قدم" subtitle="بدون ثبت‌نام، بدون هزینه" />
+      <SectionHead id="how" title={content.home.stepsTitle} subtitle={content.home.stepsSubtitle} />
 
       <ol
         class="mt-10 grid gap-5 md:grid-cols-3"
@@ -214,8 +193,8 @@ const faqSchema = {
   <section aria-labelledby="areas" class="container-page py-20">
     <SectionHead
       id="areas"
-      title="جست‌وجو بر اساس منطقه‌ی تهران"
-      subtitle="خدمات پرتقاضا را در شمال، جنوب، شرق، غرب و مرکز تهران ببینید"
+      title={content.home.areasTitle}
+      subtitle={content.home.areasSubtitle}
     />
 
     <div
@@ -255,8 +234,8 @@ const faqSchema = {
     <div class="container-page py-20">
       <SectionHead
         id="hoods"
-        title="دامپزشکی در محله‌های پرتقاضا"
-        subtitle="پرجست‌وجوترین محله‌های تهران"
+        title={content.home.hoodsTitle}
+        subtitle={content.home.hoodsSubtitle}
       />
       <ul class="mt-8 flex flex-wrap gap-2.5" data-anim="up" data-anim-stagger="0.4">
         {
@@ -282,16 +261,16 @@ const faqSchema = {
       data-anim="scale"
     >
       <h2 class="text-2xl font-extrabold text-white sm:text-3xl">
-        صاحب کسب‌وکار حوزه پت هستید؟
+        {content.home.ctaTitle}
       </h2>
       <p class="mx-auto mt-4 max-w-xl text-brand-100">
-        مرکز خود را رایگان ثبت کنید تا در جست‌وجوی محله‌تان دیده شوید.
+        {content.home.ctaText}
       </p>
       <a
         href="/panel/register-business/"
         class="mt-8 inline-block rounded-pill bg-accent-500 px-8 py-3.5 font-bold text-accent-950 shadow-lift transition-all hover:-translate-y-0.5 hover:bg-accent-400"
       >
-        ثبت رایگان کسب‌وکار
+        {content.home.ctaButton}
       </a>
     </div>
   </section>
@@ -300,32 +279,27 @@ const faqSchema = {
   <section class="border-t border-ink-200 bg-surface-sunken">
     <div class="container-page py-20">
       <div class="mx-auto max-w-3xl">
-        <h2 class="text-2xl font-extrabold sm:text-3xl">موپت چیست؟</h2>
+        <h2 class="text-2xl font-extrabold sm:text-3xl">{content.home.aboutTitle}</h2>
         <div class="mt-5 space-y-4 leading-9 text-ink-600">
-          <p>
-            پیدا کردن یک دامپزشک خوب یا پت شاپ معتبر در تهران کار ساده‌ای نیست.
-            موپت این مسیر را کوتاه می‌کند: کافی است دسته‌ی خدمت و محله‌ی خود را
-            انتخاب کنید تا فهرست مراکز نزدیک با آدرس دقیق، شماره تماس، ساعت کاری
-            و خدمات قابل ارائه را ببینید.
-          </p>
+          {content.home.aboutParagraphs.map((t) => <p>{t}</p>)}
+
           {/* ⚠️ فاصله‌های اطراف <a> با {' '} صریح نوشته شده‌اند.
               اگر لینک در خط جدا باشد، Astro فاصله را حذف می‌کند و
               کلمات به هم می‌چسبند: «دسته‌یدامپزشکی شبانه‌روزیفقط» */}
           <p>
-            برای مواقع اورژانسی، دسته‌ی{' '}
+            {content.home.aboutEmergencyBefore}{' '}
             <a
               href={url.category('vet-24h')}
               class="font-semibold text-brand-700 underline-offset-4 hover:underline"
             >
-              دامپزشکی شبانه‌روزی
+              {content.home.aboutEmergencyLink}
             </a>{' '}
-            فقط مراکزی را نشان می‌دهد که ۲۴ ساعته پذیرش دارند — چیزی که در
-            نیمه‌شب می‌تواند جان حیوان شما را نجات دهد.
+            {content.home.aboutEmergencyAfter}
           </p>
         </div>
 
         <h2 id="faq" class="mt-14 text-2xl font-extrabold sm:text-3xl">
-          سوال‌های پرتکرار
+          {content.home.faqTitle}
         </h2>
         <div class="mt-6 space-y-3" data-anim="up" data-anim-stagger="0.35">
           {

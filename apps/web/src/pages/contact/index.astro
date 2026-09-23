@@ -4,25 +4,26 @@ import Breadcrumbs from '../../components/seo/Breadcrumbs.astro';
 import PageHero from '../../components/ui/PageHero.astro';
 import JsonLd from '../../components/seo/JsonLd.astro';
 import { SITE, telegramUrl, mailtoUrl } from '../../lib/site';
+import content from '../../data/content.json';
 
 const channels = [
   {
     t: 'تلگرام',
-    d: 'سریع‌ترین راه — معمولاً همان روز پاسخ می‌دهیم',
+    d: content.contact.telegramDesc,
     v: `@${SITE.telegram}`,
     href: telegramUrl,
     external: true,
   },
   {
     t: 'ایمیل',
-    d: 'برای همکاری، گزارش خطا یا اصلاح اطلاعات یک مرکز',
+    d: content.contact.emailDesc,
     v: SITE.email,
     href: mailtoUrl,
     external: false,
   },
   {
     t: 'ثبت کسب‌وکار',
-    d: 'اگر صاحب مرکز خدمات حیوانات هستید',
+    d: content.contact.registerDesc,
     v: 'فرم ثبت‌نام',
     href: '/panel/register-business/',
     external: false,
@@ -49,8 +50,8 @@ const schema = {
   <JsonLd data={schema} />
 
   <PageHero
-    title="تماس با ما"
-    subtitle="هر پیامی درباره‌ی اطلاعات نادرست یک مرکز را جدی می‌گیریم و بررسی می‌کنیم."
+    title={content.contact.title}
+    subtitle={content.contact.subtitle}
   >
     <Breadcrumbs
       items={[

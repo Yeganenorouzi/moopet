@@ -5,6 +5,7 @@ import JsonLd from '../components/seo/JsonLd.astro';
 import Logo from '../components/ui/Logo.astro';
 import { SITE, telegramUrl, mailtoUrl } from '../lib/site';
 import { shamsiYear } from '../lib/format';
+import content from '../data/content.json';
 import { primaryCategories, categoriesByPriority, url } from '../lib/taxonomy';
 
 interface Props {
@@ -159,8 +160,7 @@ const globalSchema = [
           <div class="lg:col-span-4">
             <Logo />
             <p class="mt-4 max-w-sm text-sm leading-8 text-ink-600">
-              بانک اطلاعات خدمات حیوانات خانگی — نزدیک‌ترین دامپزشکی، پت شاپ،
-              آرایشگاه و پانسیون را با آدرس و تلفن پیدا کنید.
+              {content.footer.tagline}
             </p>
 
             <div class="mt-5 flex items-center gap-3">
@@ -233,9 +233,9 @@ const globalSchema = [
           </nav>
 
           <div class="lg:col-span-3">
-            <h2 class="text-sm font-bold text-ink-900">صاحب کسب‌وکار هستید؟</h2>
+            <h2 class="text-sm font-bold text-ink-900">{content.footer.businessTitle}</h2>
             <p class="mt-4 text-sm leading-8 text-ink-600">
-              مرکز خود را رایگان ثبت کنید تا مشتریان محله‌تان پیدایتان کنند.
+              {content.footer.businessText}
             </p>
             <a
               href="/panel/register-business/"
